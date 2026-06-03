@@ -17,7 +17,7 @@ export default function CartItem({
   fetchCart,
 }) {
   const {
-    updateQty,
+    addCart,
     removeItem,
   } = useCart();
 
@@ -35,7 +35,7 @@ export default function CartItem({
         setQty(newQty);
 
         const response =
-          await updateQty(
+          await addCart(
             item.product_id,
             newQty
           );

@@ -37,38 +37,37 @@ export default function CartPage() {
   }
 
   if (!cart?.length) {
-  return (
-    <Container className="py-16">
-      <div className="text-center">
-        <div className="mb-4 text-5xl">
-          🛒
+    return (
+      <Container className="py-16">
+        <div className="text-center">
+          <div className="mb-4 text-5xl">
+            🛒
+          </div>
+
+          <Text
+            variant="h3"
+            className="text-black"
+          >
+            Your cart is empty
+          </Text>
+
+          <Text className="mt-2">
+            Browse our bestsellers and add your
+            favourites.
+          </Text>
+
+          <Link
+            href="/products"
+            className="mt-6 inline-block"
+          >
+            <Button size="lg">
+              Start Shopping →
+            </Button>
+          </Link>
         </div>
-
-        <Text
-          variant="h3"
-          className="text-black"
-        >
-          Your cart is empty
-        </Text>
-
-        <Text className="mt-2">
-          Browse our bestsellers and add your
-          favourites.
-        </Text>
-
-        <Link
-          href="/products"
-          className="mt-6 inline-block"
-        >
-          <Button size="lg">
-            Start Shopping →
-          </Button>
-        </Link>
-      </div>
-    </Container>
-  );
-}
-
+      </Container>
+    );
+  }
   return (
     <Container className="py-8">
       <div className="mb-8">
