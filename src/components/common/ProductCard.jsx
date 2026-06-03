@@ -1,60 +1,85 @@
+"use client";
+
 import Image from "next/image";
+import Link from "next/link";
+import { Text } from "@/components";
 
 export default function ProductCard({
   product,
 }) {
   return (
-    <div className="overflow-hidden rounded-xl border bg-white shadow-sm transition hover:shadow-lg">
-      <div className="relative h-40 md:h-56">
-        <Image
-          src={
-            product?.thumbnail_url ||
-            "/images/product-placeholder.png"
-          }
-          alt={
-            product?.name ||
-            "Product"
-          }
-          fill
-          className="object-cover"
-        />
-      </div>
-
-      <div className="p-3 md:p-4">
-        <p className="text-xs text-gray-500">
-          {product.brand}
-        </p>
-
-        <h3 className="mt-1 line-clamp-2 text-sm font-semibold text-[var(--color-black)] md:text-base">
-          {product.name}
-        </h3>
-
-        <p className="mt-1 text-xs text-gray-500 md:text-sm">
-          {
-            product.category_name
-          }
-        </p>
-
-        <div className="mt-3 flex items-center gap-2">
-          <span className="text-base font-bold text-[var(--color-text-primary)] md:text-lg">
-            ₹
-            {Number(
-              product.sale_price
-            ).toLocaleString()}
-          </span>
-
-          <span className="text-xs text-gray-400 line-through md:text-sm">
-            ₹
-            {Number(
-              product.mrp
-            ).toLocaleString()}
-          </span>
+    <Link
+      href={`/products/${product.id}`}
+      className="block"
+    >
+      <div className="overflow-hidden rounded-xl border bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+        <div className="relative h-40 md:h-56">
+          <Image
+            src={
+              product?.thumbnail_url ||
+              "/images/product-placeholder.png"
+            }
+            alt={
+              product?.name ||
+              "Product"
+            }
+            fill
+            className="object-cover"
+          />
         </div>
 
-        <button className="mt-3 w-full rounded-lg bg-[var(--color-text-primary)] py-2 text-sm text-white">
-          Add To Cart
-        </button>
+        <div className="p-3 md:p-4">
+          <Text
+            variant="caption"
+            className="text-gray-500"
+          >
+            {product.brand}
+          </Text>
+
+          <Text
+            as="h3"
+            variant="h6"
+            className="mt-1 line-clamp-2 text-black"
+          >
+            {product.name}
+          </Text>
+
+          <Text
+            variant="bodySmall"
+            className="mt-1"
+          >
+            {product.category_name}
+          </Text>
+
+          <div className="mt-3 flex items-center gap-2">
+            <Text
+              as="span"
+              variant="h6"
+              className="text-[var(--color-text-primary)]"
+            >
+              ₹
+              {Number(
+                product.sale_price
+              ).toLocaleString()}
+            </Text>
+
+            <Text
+              as="span"
+              variant="bodySmall"
+              className="text-gray-400 line-through"
+            >
+              ₹
+              {Number(
+                product.mrp
+              ).toLocaleString()}
+            </Text>
+          </div>
+
+          <button className="mt-4 w-full rounded-lg border border-[var(--color-text-primary)] py-2 text-sm font-medium text-[var(--color-text-primary)] transition hover:bg-[var(--color-text-primary)] hover:text-white">
+            View Details
+          </button>
+        </div>
       </div>
-    </div>
+    </Link>
   );
 }

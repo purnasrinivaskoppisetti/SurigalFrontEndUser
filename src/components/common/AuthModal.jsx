@@ -68,31 +68,34 @@ export default function AuthModal({
         }
     };
     const handleLogin = async (e) => {
-        e.preventDefault();
+  e.preventDefault();
 
-        try {
-            const response = await login({
-                email,
-                password,
-            });
+  try {
+    const response = await login({
+      email,
+      password,
+    });
 
-            const user =
-                response.data.user;
+    console.log(
+      "LOGIN RESPONSE =>",
+      response
+    );
 
-            dispatch(setUser(user));
+    const user =
+      response.data.user;
 
-            localStorage.setItem(
-                "user",
-                JSON.stringify(user)
-            );
+    dispatch(setUser(user));
 
-            onClose();
+    localStorage.setItem(
+      "user",
+      JSON.stringify(user)
+    );
 
-
-        } catch (err) {
-            console.log(err);
-        }
-    };
+    onClose();
+  } catch (err) {
+    console.log(err);
+  }
+};
     return (
         <div
             className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"

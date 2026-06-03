@@ -10,13 +10,15 @@ import {
 
 import useProducts from "@/hooks/useProducts";
 import useCategories from "@/hooks/useCategories";
-
+import { useSearchParams } from "next/navigation";
 export default function ProductsPage({
   pageTitle = "Products",
 }) {
+ 
   const [categoryId, setCategoryId] =
     useState("");
-
+const searchParams =
+  useSearchParams();
   const { categories } =
     useCategories();
 
@@ -34,7 +36,16 @@ export default function ProductsPage({
       category_id: categoryId,
     });
   }, [categoryId]);
+useEffect(() => {
+  const category =
+    sessionStorage.getItem(
+      "selectedCategory"
+    );
 
+  if (category) {
+    setCategoryId(category);
+  }
+}, []);
   return (
     <section className="py-6 md:py-8">
       <Container>

@@ -3,7 +3,7 @@
 import Container from "@/components/ui/Container";
 import Text from "@/components/ui/Text";
 import useCategories from "@/hooks/useCategories";
-
+import { useRouter } from "next/navigation";
 import {
   Stethoscope,
   HeartPulse,
@@ -32,6 +32,7 @@ const categoryIcons = {
 };
 
 export default function CategorySection() {
+  const router = useRouter();
   const {
     categories,
     loading,
@@ -42,7 +43,9 @@ export default function CategorySection() {
     return (
       <section className="py-12">
         <Container>
-          <Text>Loading categories...</Text>
+          <Text>
+            Loading categories...
+          </Text>
         </Container>
       </section>
     );
@@ -61,10 +64,9 @@ export default function CategorySection() {
   }
 
   return (
-    <section className="py-12">
+    <section className="py-10 md:py-12">
       <Container>
-
-        <div className="mb-8">
+        <div className="mb-6">
           <Text
             as="h2"
             variant="h3"
@@ -73,7 +75,7 @@ export default function CategorySection() {
             Shop by Category
           </Text>
 
-          <Text className="mt-1 text-sm">
+          <Text className="mt-1 text-sm text-gray-500">
             Find exactly what you need
           </Text>
         </div>
@@ -81,61 +83,92 @@ export default function CategorySection() {
         <div
           className="
             flex
-            gap-3
+            gap-4
             overflow-x-auto
-            pb-2
+            scroll-smooth
+            pb-3
             scrollbar-hide
-
-            lg:grid
-            lg:grid-cols-5
-            xl:grid-cols-6
-            lg:overflow-visible
           "
         >
-          {categories.map((item) => {
-            const Icon =
-              categoryIcons[item.name] ||
-              Microscope;
+          {categories.map(
+            (item) => {
+              const Icon =
+                categoryIcons[
+                item.name
+                ] ||
+                Microscope;
 
-            return (
-              <div
-                key={item.id}
-                className=" min-w-[110px] lg:min-w-0 bg-white border  border-border rounded-xl p-4 flex flex-col items-center justify-center gap-3 hover:border-text-primary  hover:shadow-md  transition-all duration-300  cursor-pointer"
-              >
+              return (
                 <div
+                  key={item.id}
+                  onClick={() => {
+                    sessionStorage.setItem(
+                      "selectedCategory",
+                      item.id
+                    );
+
+                    router.push("/products");
+                  }}
                   className="
-      h-12
-      w-12
-      rounded-full
+                    min-w-[130px]
+                    sm:min-w-[150px]
+                    md:min-w-[170px]
+                    lg:min-w-[180px]
+                    flex-shrink-0
 
-      bg-primary-soft
+                    bg-white
+                    border
+                    border-gray-200
+                    rounded-2xl
 
-      flex
-      items-center
-      justify-center
-    "
+                    p-4
+
+                    flex
+                    flex-col
+                    items-center
+                    justify-center
+                    gap-3
+
+                    cursor-pointer
+
+                    hover:border-[var(--color-text-primary)]
+                    hover:shadow-lg
+
+                    transition-all
+                    duration-300
+                  "
                 >
-                  <Icon
-                    size={24}
-                    className="text-text-primary"
-                  />
+                  <div
+                    className="
+                      h-14
+                      w-14
+                      rounded-full
+
+                      flex
+                      items-center
+                      justify-center
+
+                      bg-blue-50
+                    "
+                  >
+                    {item.icon}
+                  </div>
+                  <Text
+                    variant="bodySmall"
+                    className="
+                      text-center
+                      font-medium
+                      text-black
+                      line-clamp-2
+                    "
+                  >
+                    {item.name}
+                  </Text>
                 </div>
-
-                <Text
-                  variant="bodySmall"
-                  className="
-      text-center
-      text-black
-      font-medium
-    "
-                >
-                  {item.name}
-                </Text>
-              </div>
-            );
-          })}
+              );
+            }
+          )}
         </div>
-
       </Container>
     </section>
   );

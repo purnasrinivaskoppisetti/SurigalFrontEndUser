@@ -23,3 +23,14 @@ export const getProducts = async ({
 
   return response.data;
 };
+export const getProductDetails =
+  async (id) => {
+    const response =
+      await api.get(
+        API_ENDPOINTS.PRODUCT_DETAILS(
+          id
+        )
+      );
+
+    return response.data;
+  };
