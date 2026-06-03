@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Text } from "@/components";
+import { ArrowRight } from "lucide-react";
+
+import Text from "@/components/ui/Text";
 
 export default function ProductCard({
   product,
@@ -10,10 +12,25 @@ export default function ProductCard({
   return (
     <Link
       href={`/products/${product.id}`}
-      className="block"
+      className="group block"
     >
-      <div className="overflow-hidden rounded-xl border bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-        <div className="relative h-40 md:h-56">
+      <div
+        className="
+    flex h-full flex-col
+    overflow-hidden
+    rounded-md
+    border border-slate-200
+    bg-white
+    shadow-sm
+    transition-all
+    duration-300
+    hover:-translate-y-1
+    hover:shadow-lg
+  "
+      >
+        {/* Image */}
+
+        <div className="relative aspect-[16/10] bg-slate-100">
           <Image
             src={
               product?.thumbnail_url ||
@@ -24,60 +41,60 @@ export default function ProductCard({
               "Product"
             }
             fill
-            className="object-cover"
+            className="
+              object-cover
+              transition-transform
+              duration-500
+              group-hover:scale-105
+            "
           />
         </div>
 
-        <div className="p-3 md:p-4">
-          <Text
-            variant="caption"
-            className="text-gray-500"
-          >
-            {product.brand}
-          </Text>
+        {/* Content */}
 
+        <div className="p-4">
           <Text
             as="h3"
             variant="h6"
-            className="mt-1 line-clamp-2 text-black"
+            className="
+              text-slate-900
+              line-clamp-2
+            "
           >
             {product.name}
           </Text>
 
-          <Text
-            variant="bodySmall"
-            className="mt-1"
-          >
-            {product.category_name}
-          </Text>
-
-          <div className="mt-3 flex items-center gap-2">
+          {product.category_name && (
             <Text
-              as="span"
-              variant="h6"
-              className="text-[var(--color-text-primary)]"
-            >
-              ₹
-              {Number(
-                product.sale_price
-              ).toLocaleString()}
-            </Text>
-
-            <Text
-              as="span"
               variant="bodySmall"
-              className="text-gray-400 line-through"
+              className="mt-1"
             >
-              ₹
-              {Number(
-                product.mrp
-              ).toLocaleString()}
+              {product.category_name}
             </Text>
-          </div>
+          )}
 
-          <button className="mt-4 w-full rounded-lg border border-[var(--color-text-primary)] py-2 text-sm font-medium text-[var(--color-text-primary)] transition hover:bg-[var(--color-text-primary)] hover:text-white">
-            View Details
-          </button>
+          <div className="my-4 h-px bg-slate-100" />
+
+          <div className="flex items-center justify-between">
+            <Text
+              variant="label"
+              className="
+                text-[var(--color-text-primary)]
+              "
+            >
+              View Details
+            </Text>
+
+            <ArrowRight
+              size={18}
+              className="
+                text-[var(--color-text-primary)]
+                transition-transform
+                duration-300
+                group-hover:translate-x-1
+              "
+            />
+          </div>
         </div>
       </div>
     </Link>
