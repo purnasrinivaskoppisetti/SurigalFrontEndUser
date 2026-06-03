@@ -1,8 +1,9 @@
 "use client";
 
 import {
-  useEffect,
   useState,
+  useEffect,
+  useCallback,
 } from "react";
 
 import { useSelector } from "react-redux";
@@ -18,46 +19,52 @@ export default function useCartCount() {
   );
 
   const fetchCartCount =
-    async () => {
+    useCallback(async () => {
       try {
+        if (!user?.id) {
+          setCartCount(0);
+          return;
+        }
+
         const response =
           await getCartService();
 
-        if (
-          response.success
-        ) {
+        if (response?.success) {
           setCartCount(
             response
-              .cart_summary
+              ?.cart_summary
               ?.total_items || 0
           );
         }
       } catch (error) {
-        console.log(error);
+        console.error(
+          "Cart Count Error:",
+          error
+        );
       }
+    }, [user?.id]);
+
+  useEffect(() => {
+    fetchCartCount();
+  }, [fetchCartCount]);
+
+  useEffect(() => {
+    const handleCartUpdate = () => {
+      fetchCartCount();
     };
 
-  useEffect(() => {
-    if (user?.id) {
-      fetchCartCount();
-    } else {
-      setCartCount(0);
-    }
-  }, [user]);
-
-  useEffect(() => {
     window.addEventListener(
       "cartUpdated",
-      fetchCartCount
+      handleCartUpdate
     );
 
     return () => {
       window.removeEventListener(
         "cartUpdated",
-        fetchCartCount
+        handleCartUpdate
       );
     };
-  }, []);
+  }, [fetchCartCount]);
 
   return {
     cartCount,

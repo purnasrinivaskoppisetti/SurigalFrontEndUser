@@ -11,14 +11,18 @@ import {
 import useProducts from "@/hooks/useProducts";
 import useCategories from "@/hooks/useCategories";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 export default function ProductsPage({
+
   pageTitle = "Products",
 }) {
-
+  const router = useRouter();
   const [categoryId, setCategoryId] =
     useState("");
   const searchParams =
     useSearchParams();
+  const search =
+    searchParams.get("search") || "";
   const { categories } =
     useCategories();
 
@@ -34,8 +38,9 @@ export default function ProductsPage({
       page: 1,
       page_size: 20,
       category_id: categoryId,
+      search: search,
     });
-  }, [categoryId]);
+  }, [categoryId, search]);
   useEffect(() => {
     const category =
       sessionStorage.getItem(
@@ -44,8 +49,19 @@ export default function ProductsPage({
 
     if (category) {
       setCategoryId(category);
+
+      sessionStorage.removeItem(
+        "selectedCategory"
+      );
     }
   }, []);
+  const handleCategoryChange = (
+    value
+  ) => {
+    setCategoryId(value);
+
+    router.push("/products");
+  };
   return (
     <section className="py-6 md:py-8">
       <Container>
@@ -63,11 +79,9 @@ export default function ProductsPage({
 
           <div className="hidden w-[280px] shrink-0 md:block">
             <FilterSidebar
-              selectedCategory={
-                categoryId
-              }
+              selectedCategory={categoryId}
               onCategoryChange={
-                setCategoryId
+                handleCategoryChange
               }
             />
           </div>

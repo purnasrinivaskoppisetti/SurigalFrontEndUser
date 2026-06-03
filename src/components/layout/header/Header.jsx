@@ -22,8 +22,17 @@ import {
 } from "@/components";
 
 import useCartCount from "@/hooks/useCartCountHeader";
-
+import { useRouter } from "next/navigation";
 export default function Header() {
+  const router = useRouter();
+  const [mounted, setMounted] =
+    useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  const [searchText, setSearchText] =
+    useState("");
   const [isAuthOpen, setIsAuthOpen] =
     useState(false);
 
@@ -55,7 +64,17 @@ export default function Header() {
         handleScroll
       );
   }, []);
+  const handleSearch = () => {
+    if (!searchText.trim()) return;
 
+    router.push(
+      `/products?search=${encodeURIComponent(
+        searchText
+      )}`
+    );
+
+    setSearchText("");
+  };
   return (
     <header
       className={clsx(
@@ -91,11 +110,21 @@ export default function Header() {
               <input
                 type="text"
                 placeholder="Search products..."
+                value={searchText}
+                onChange={(e) =>
+                  setSearchText(e.target.value)
+                }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSearch();
+                  }
+                }}
                 className="h-12 flex-1 px-4 outline-none"
               />
 
               <button
                 type="button"
+                onClick={handleSearch}
                 className="flex w-14 items-center justify-center bg-[var(--color-text-primary)] text-white"
               >
                 <Search size={20} />
@@ -127,34 +156,28 @@ export default function Header() {
             >
               <ShoppingCart size={24} />
 
-
-              {cartCount > 0 && (
-                <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-text-primary)] text-xs font-semibold text-white">
-                  {cartCount}
-                </span>
-              )}
+              {mounted &&
+                cartCount > 0 && (
+                  <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-text-primary)] text-xs font-semibold text-white">
+                    {cartCount}
+                  </span>
+                )}
             </Link>
 
             {/* User */}
 
-            {user ? (
+            {!mounted ? (
+              <div className="h-10 w-24 rounded-lg bg-gray-100 animate-pulse" />
+            ) : user ? (
               <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 shadow-sm">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50">
-                  <User
-                    size={16}
-                    className="text-[var(--color-text-primary)]"
-                  />
-                </div>
+                <User
+                  size={18}
+                  className="text-[var(--color-text-primary)]"
+                />
 
-                <div className="flex flex-col">
-                  <span className="text-xs text-gray-500">
-                    Welcome
-                  </span>
-
-                  <span className="max-w-[120px] truncate text-sm font-semibold text-black">
-                    {user.full_name}
-                  </span>
-                </div>
+                <span className="max-w-[120px] truncate text-sm font-medium text-black">
+                  {user.full_name}
+                </span>
               </div>
             ) : (
               <button
@@ -162,14 +185,14 @@ export default function Header() {
                 onClick={() =>
                   setIsAuthOpen(true)
                 }
-                className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 shadow-sm transition hover:border-[var(--color-text-primary)] hover:bg-blue-50"
+                className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 shadow-sm transition hover:border-[var(--color-text-primary)]"
               >
                 <User
                   size={18}
                   className="text-[var(--color-text-primary)]"
                 />
 
-                <span className="text-sm font-medium text-black">
+                <span className="text-sm font-medium">
                   Login
                 </span>
               </button>
@@ -185,11 +208,12 @@ export default function Header() {
             >
               <ShoppingCart size={24} />
 
-              {cartCount > 0 && (
-                <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-text-primary)] text-xs font-semibold text-white">
-                  {cartCount}
-                </span>
-              )}
+              {mounted &&
+                cartCount > 0 && (
+                  <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-text-primary)] text-xs font-semibold text-white">
+                    {cartCount}
+                  </span>
+                )}
             </Link>
 
             <button type="button">
