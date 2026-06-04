@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+
 import {
   FaFacebookF,
   FaInstagram,
@@ -40,16 +41,40 @@ const CATEGORIES = [
 
 export default function Footer() {
   return (
-    <footer className="mt-16 bg-[var(--color-black)] text-white">
+    <footer className="mt-10 bg-[var(--color-black)] text-white">
       {/* Main Footer */}
 
       <Container>
-        <div className="grid grid-cols-1 gap-10 py-12 md:grid-cols-2 lg:grid-cols-4 lg:gap-16 lg:py-16">
+        <div
+          className="
+            grid
+            grid-cols-1
+            gap-8
+            py-10
+            md:grid-cols-2
+            lg:grid-cols-4
+            lg:gap-10
+            lg:py-12
+          "
+        >
           {/* Brand */}
 
           <div>
-            <div className="mb-6 flex items-center gap-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-text-primary)] text-3xl font-bold text-white">
+            <div className="mb-4 flex items-center gap-3">
+              <div
+                className="
+                  flex
+                  h-14
+                  w-14
+                  items-center
+                  justify-center
+                  rounded-2xl
+                  bg-[var(--color-text-primary)]
+                  text-3xl
+                  font-bold
+                  text-white
+                "
+              >
                 +
               </div>
 
@@ -64,14 +89,16 @@ export default function Footer() {
 
             <Text
               variant="body"
-              className="mb-8 text-white/70"
+              className="mb-5 text-white/70 leading-7"
             >
               Leading supplier of surgical &
               healthcare equipment across Andhra
               Pradesh since 1999.
             </Text>
 
-            <div className="flex gap-4">
+            {/* Social Icons */}
+
+            <div className="flex gap-3">
               <SocialIcon>
                 <FaFacebookF size={18} />
               </SocialIcon>
@@ -85,7 +112,7 @@ export default function Footer() {
               </SocialIcon>
 
               <SocialIcon>
-                <FiPhone size={20} />
+                <FiPhone size={18} />
               </SocialIcon>
             </div>
           </div>
@@ -96,18 +123,23 @@ export default function Footer() {
             <Text
               as="h4"
               variant="h5"
-              className="mb-6 text-white"
+              className="mb-4 text-white"
             >
               Quick Links
             </Text>
 
-            <ul className="space-y-4">
+            <ul className="space-y-2">
               {QUICK_LINKS.map((item) => (
                 <li key={item.label}>
                   <Link href={item.href}>
                     <Text
                       variant="body"
-                      className="cursor-pointer text-white/70 transition hover:text-[var(--color-text-primary)]"
+                      className="
+                        cursor-pointer
+                        text-white/70
+                        transition
+                        hover:text-[var(--color-text-primary)]
+                      "
                     >
                       {item.label}
                     </Text>
@@ -123,17 +155,22 @@ export default function Footer() {
             <Text
               as="h4"
               variant="h5"
-              className="mb-6 text-white"
+              className="mb-4 text-white"
             >
               Categories
             </Text>
 
-            <ul className="space-y-4">
+            <ul className="space-y-2">
               {CATEGORIES.map((item) => (
                 <li key={item}>
                   <Text
                     variant="body"
-                    className="cursor-pointer text-white/70 transition hover:text-[var(--color-text-primary)]"
+                    className="
+                      cursor-pointer
+                      text-white/70
+                      transition
+                      hover:text-[var(--color-text-primary)]
+                    "
                   >
                     {item}
                   </Text>
@@ -148,16 +185,21 @@ export default function Footer() {
             <Text
               as="h4"
               variant="h5"
-              className="mb-6 text-white"
+              className="mb-4 text-white"
             >
               Contact Us
             </Text>
 
-            <div className="space-y-6">
-              <div className="flex gap-4">
+            <div className="space-y-3">
+              {/* Phone */}
+
+              <div className="flex gap-3">
                 <FiPhone
-                  size={20}
-                  className="mt-1 text-[var(--color-text-primary)]"
+                  size={18}
+                  className="
+                    mt-1
+                    text-[var(--color-text-primary)]
+                  "
                 />
 
                 <div>
@@ -177,10 +219,15 @@ export default function Footer() {
                 </div>
               </div>
 
-              <div className="flex gap-4">
+              {/* Email */}
+
+              <div className="flex gap-3">
                 <FiMail
-                  size={20}
-                  className="mt-1 text-[var(--color-text-primary)]"
+                  size={18}
+                  className="
+                    mt-1
+                    text-[var(--color-text-primary)]
+                  "
                 />
 
                 <Text
@@ -191,15 +238,20 @@ export default function Footer() {
                 </Text>
               </div>
 
-              <div className="flex gap-4">
+              {/* Address */}
+
+              <div className="flex gap-3">
                 <IoLocationOutline
-                  size={20}
-                  className="mt-1 text-[var(--color-text-primary)]"
+                  size={18}
+                  className="
+                    mt-1
+                    text-[var(--color-text-primary)]
+                  "
                 />
 
                 <Text
                   variant="body"
-                  className="text-white/70"
+                  className="text-white/70 leading-6"
                 >
                   Old Club Road, Kothapeta,
                   Guntur, AP 522001
@@ -214,7 +266,17 @@ export default function Footer() {
 
       <div className="border-t border-white/10">
         <Container>
-          <div className="flex flex-wrap items-center justify-center gap-4 py-5 md:gap-8">
+          <div
+            className="
+              flex
+              flex-wrap
+              items-center
+              justify-center
+              gap-3
+              py-4
+              md:gap-5
+            "
+          >
             <Text
               variant="bodySmall"
               className="text-white/70"
@@ -233,7 +295,7 @@ export default function Footer() {
               variant="bodySmall"
               className="text-white/70"
             >
-              ✅ 100% Genuine Products
+              ✅ Genuine Products
             </Text>
 
             <Text
@@ -271,7 +333,17 @@ export default function Footer() {
 
       <div className="border-t border-white/10">
         <Container>
-          <div className="flex flex-col items-center justify-between gap-4 py-6 md:flex-row">
+          <div
+            className="
+              flex
+              flex-col
+              items-center
+              justify-between
+              gap-3
+              py-5
+              md:flex-row
+            "
+          >
             <Text
               variant="bodySmall"
               className="text-white/60"
@@ -284,7 +356,10 @@ export default function Footer() {
               <Link href="/privacy-policy">
                 <Text
                   variant="bodySmall"
-                  className="text-white/60 hover:text-white"
+                  className="
+                    text-white/60
+                    hover:text-white
+                  "
                 >
                   Privacy Policy
                 </Text>
@@ -293,7 +368,10 @@ export default function Footer() {
               <Link href="/terms">
                 <Text
                   variant="bodySmall"
-                  className="text-white/60 hover:text-white"
+                  className="
+                    text-white/60
+                    hover:text-white
+                  "
                 >
                   Terms
                 </Text>
@@ -302,7 +380,10 @@ export default function Footer() {
               <Link href="/refund-policy">
                 <Text
                   variant="bodySmall"
-                  className="text-white/60 hover:text-white"
+                  className="
+                    text-white/60
+                    hover:text-white
+                  "
                 >
                   Refund Policy
                 </Text>
@@ -317,7 +398,19 @@ export default function Footer() {
 
 function SocialIcon({ children }) {
   return (
-    <button className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 transition hover:bg-[var(--color-text-primary)]">
+    <button
+      className="
+        flex
+        h-11
+        w-11
+        items-center
+        justify-center
+        rounded-full
+        bg-white/10
+        transition
+        hover:bg-[var(--color-text-primary)]
+      "
+    >
       {children}
     </button>
   );
