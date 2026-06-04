@@ -4,7 +4,7 @@ export const API_ENDPOINTS = {
   CATEGORIES: "/api/v1/store/categories",
   PRODUCTS:"/api/v1/store/products",
   PRODUCT_DETAILS: (id) =>`/api/v1/store/products/${id}`,
-  ADD_TO_CART:(id)=>`/api/v1/customer/cart/${id}`,
+  ADD_TO_CART:(id)=>`/api/v1/customer/cart/add/${id}`,
   GET_CART:"/api/v1/customer/cart",
   REMOVE_CART:(id)=>`/api/v1/customer/cart/${id}`,
 };

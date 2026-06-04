@@ -20,7 +20,10 @@ import {
   Text,
   AuthModal,
 } from "@/components";
-
+import {
+  setWishlist,
+  clearWishlist,
+} from "@/redux/wishlistSlice";
 import useCartCount from "@/hooks/useCartCountHeader";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
@@ -34,7 +37,10 @@ export default function Header() {
   const router = useRouter();
   const [mounted, setMounted] =
     useState(false);
-
+  const [
+    wishlistMounted,
+    setWishlistMounted,
+  ] = useState(false);
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -53,6 +59,23 @@ export default function Header() {
   const { cartCount } =
     useCartCount();
 
+
+  useEffect(() => {
+    const wishlist =
+      JSON.parse(
+        localStorage.getItem(
+          "wishlist"
+        ) || "[]"
+      );
+
+    dispatch(
+      setWishlist(
+        wishlist
+      )
+    );
+
+    setWishlistMounted(true);
+  }, [dispatch]);
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(
@@ -71,16 +94,21 @@ export default function Header() {
         handleScroll
       );
   }, []);
- const handleSearch = () => {
-  if (!searchText.trim()) return;
+  const handleSearch = () => {
+    if (!searchText.trim()) return;
 
-  sessionStorage.setItem(
-    "productSearch",
-    searchText
-  );
+    sessionStorage.setItem(
+      "productSearch",
+      searchText
+    );
 
-  router.push("/products");
-};
+    router.push("/products");
+  };
+  const wishlistCount =
+    useSelector(
+      (state) =>
+        state.wishlist.items.length
+    );
   useEffect(() => {
     const savedUser =
       Cookies.get("user");
@@ -102,6 +130,7 @@ export default function Header() {
     );
 
     dispatch(clearUser());
+    dispatch(clearWishlist());
 
     router.push("/");
   };
@@ -167,9 +196,12 @@ export default function Header() {
             >
               <Heart size={18} />
 
-              <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
-                2
-              </span>
+              {wishlistMounted &&
+                wishlistCount > 0 && (
+                  <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
+                    {wishlistCount}
+                  </span>
+                )}
             </button>
 
             {/* Cart */}

@@ -16,10 +16,16 @@ import {
 
 import useCart from "@/hooks/useCart";
 import useProductDetails from "@/hooks/useProductDetails";
-
+import { useSelector } from "react-redux";
+import { AuthModal } from "@/components";
 export default function Page() {
   const { id } = useParams();
+  const [isAuthOpen, setIsAuthOpen] =
+    useState(false);
 
+  const user = useSelector(
+    (state) => state.user.user
+  );
   const router =
     useRouter();
 
@@ -43,6 +49,11 @@ export default function Page() {
 
   const handleBuyNow =
     async () => {
+      if (!user) {
+        setIsAuthOpen(true);
+        return;
+      }
+
       try {
         setAdding(true);
 
@@ -242,6 +253,12 @@ export default function Page() {
             </div>
           </div>
         </div>
+        <AuthModal
+          isOpen={isAuthOpen}
+          onClose={() =>
+            setIsAuthOpen(false)
+          }
+        />
       </Container>
     </section>
   );
