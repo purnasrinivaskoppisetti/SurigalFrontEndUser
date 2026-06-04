@@ -2,16 +2,16 @@ import clsx from "clsx";
 
 const variants = {
   primary:
-    "bg-text-primary text-white hover:opacity-90",
+    "bg-text-primary text-white hover:opacity-90 cursor-pointer",
 
   success:
-    "bg-accent text-white hover:opacity-90",
+    "bg-accent text-white hover:opacity-90 cursor-pointer",
 
   cart:
-    "border border-text-primary text-text-primary bg-white hover:bg-primary-soft",
+    "border border-text-primary text-text-primary bg-white hover:bg-primary-soft cursor-pointer",
 
   call:
-    "border border-accent text-accent bg-white hover:bg-green-50",
+    "border border-accent text-accent bg-white hover:bg-green-50 cursor-pointer",
 };
 
 const sizes = {

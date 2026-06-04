@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Heart } from "lucide-react";
 
 import Text from "@/components/ui/Text";
 
@@ -42,12 +42,43 @@ export default function ProductCard({
             }
             fill
             className="
-              object-cover
-              transition-transform
-              duration-500
-              group-hover:scale-105
-            "
+      object-cover
+      transition-transform
+      duration-500
+      group-hover:scale-105
+    "
           />
+
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              console.log(
+                "Wishlist:",
+                product.id
+              );
+            }}
+            className="
+      absolute
+      right-3
+      top-3
+      flex
+      h-8
+      w-8
+      items-center
+      justify-center
+      rounded-full
+      bg-white/95
+      shadow-md
+      transition
+      hover:scale-110
+    "
+          >
+            <Heart
+              size={16}
+              className="text-slate-600"
+            />
+          </button>
         </div>
 
         {/* Content */}
@@ -79,7 +110,7 @@ export default function ProductCard({
             <Text
               variant="label"
               className="
-                text-[var(--color-text-primary)]
+                text-text-primary
               "
             >
               View Details

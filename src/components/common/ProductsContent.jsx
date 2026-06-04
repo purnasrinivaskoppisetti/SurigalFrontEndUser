@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
   Text,
   FilterSidebar,
@@ -10,14 +11,21 @@ import {
 
 import useProducts from "@/hooks/useProducts";
 import useCategories from "@/hooks/useCategories";
-import { useRouter } from "next/navigation";
-export default function ProductsPage({
 
+export default function ProductsContent({
   pageTitle = "Products",
 }) {
   const router = useRouter();
+
   const [categoryId, setCategoryId] =
     useState("");
+
+  const searchParams =
+    useSearchParams();
+
+  const search =
+    searchParams.get("search") || "";
+
   const { categories } =
     useCategories();
 
@@ -33,9 +41,10 @@ export default function ProductsPage({
       page: 1,
       page_size: 20,
       category_id: categoryId,
-      
+      search,
     });
-  }, [categoryId]);
+  }, [categoryId, search]);
+
   useEffect(() => {
     const category =
       sessionStorage.getItem(
@@ -50,6 +59,7 @@ export default function ProductsPage({
       );
     }
   }, []);
+
   const handleCategoryChange = (
     value
   ) => {
@@ -57,8 +67,9 @@ export default function ProductsPage({
 
     router.push("/products");
   };
+
   return (
-    <section className="py-6 md:py-8">
+     <section className="py-6 md:py-8">
       <Container>
         <div className="mb-5">
           <Text

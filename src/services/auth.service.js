@@ -40,3 +40,9 @@ export const loginService = async (
 
   return result;
 };
+export const logoutService = () => {
+  Cookies.remove("token");
+  Cookies.remove("user");
+
+  localStorage.removeItem("user");
+};

@@ -1,23 +1,18 @@
 import Container from "@/components/ui/Container";
 import Text from "@/components/ui/Text";
 import { Phone, Star, Award, Truck } from "lucide-react";
-
 export default function HeroSection() {
   return (
     <section className="py-12 lg:py-20">
       <Container>
         <div className="grid lg:grid-cols-[60%_40%] gap-10 items-center">
-          {/* Left Content */}
           <div>
-            {/* Badge */}
             <div className="inline-flex items-center gap-2 rounded-full bg-primary-soft px-4 py-2 mb-6">
               <span>🏥</span>
               <span className="text-text-primary text-sm font-medium">
                 India's Trusted Medical Store
               </span>
             </div>
-
-            {/* Heading */}
             <Text
               as="h1"
               variant="display"
@@ -51,7 +46,6 @@ export default function HeroSection() {
                 </div>
               ))}
             </div>
-
             {/* CTA */}
             <div className="flex flex-wrap gap-4 mt-8">
               <button className="bg-text-primary text-white px-8 py-4 rounded-xl font-semibold hover:opacity-90 transition">
@@ -63,7 +57,6 @@ export default function HeroSection() {
                 Call Now
               </button>
             </div>
-
             {/* Rating */}
             <div className="flex items-center gap-3 mt-8">
               <div className="flex text-gold">

@@ -1,8 +1,6 @@
 "use client";
-
 import Text from "@/components/ui/Text";
 import useCategories from "@/hooks/useCategories";
-
 export default function FilterSidebar({
   selectedCategory = "",
   onCategoryChange,
@@ -54,7 +52,7 @@ export default function FilterSidebar({
                     category.id
                   )
                 }
-                className={`block w-full text-left text-sm transition-colors ${
+                className={`block w-full text-left text-sm transition-colors cursor-pointer ${
                   selectedCategory ===
                   category.id
                     ? "font-semibold text-[var(--color-text-primary)]"

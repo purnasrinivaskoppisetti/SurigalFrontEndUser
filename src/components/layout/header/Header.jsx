@@ -23,7 +23,14 @@ import {
 
 import useCartCount from "@/hooks/useCartCountHeader";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+import { useDispatch } from "react-redux";
+import {
+  setUser,
+  clearUser,
+} from "@/redux/userSlice";
 export default function Header() {
+  const dispatch = useDispatch();
   const router = useRouter();
   const [mounted, setMounted] =
     useState(false);
@@ -64,16 +71,39 @@ export default function Header() {
         handleScroll
       );
   }, []);
-  const handleSearch = () => {
-    if (!searchText.trim()) return;
+ const handleSearch = () => {
+  if (!searchText.trim()) return;
 
-    router.push(
-      `/products?search=${encodeURIComponent(
-        searchText
-      )}`
+  sessionStorage.setItem(
+    "productSearch",
+    searchText
+  );
+
+  router.push("/products");
+};
+  useEffect(() => {
+    const savedUser =
+      Cookies.get("user");
+
+    if (savedUser) {
+      dispatch(
+        setUser(
+          JSON.parse(savedUser)
+        )
+      );
+    }
+  }, []);
+  const handleLogout = () => {
+    Cookies.remove("token");
+    Cookies.remove("user");
+
+    localStorage.removeItem(
+      "user"
     );
 
-    setSearchText("");
+    dispatch(clearUser());
+
+    router.push("/");
   };
   return (
     <header
@@ -83,149 +113,152 @@ export default function Header() {
       )}
     >
       <Container>
-      <div className="flex h-14 items-center justify-between gap-3 lg:h-16">
-  {/* Logo */}
+        <div className="flex h-14 items-center justify-between gap-3 lg:h-16">
+          <Link
+            href="/"
+            className="flex shrink-0 items-center gap-2"
+          >
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-text-primary)] text-white">
+              <Plus size={18} />
+            </div>
+            <Text
+              as="h1"
+              variant="h4"
+              className="text-lg font-semibold text-[var(--color-text-primary)]"
+            >
+              Surgical World
+            </Text>
+          </Link>
+          <div className="hidden max-w-xl flex-1 md:flex">
+            <div className="flex h-[42px] w-full overflow-hidden rounded-lg border border-gray-200 bg-white">
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchText}
+                onChange={(e) =>
+                  setSearchText(e.target.value)
+                }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSearch();
+                  }
+                }}
+                className="h-full flex-1 px-4 text-sm outline-none"
+              />
 
-  <Link
-    href="/"
-    className="flex shrink-0 items-center gap-2"
-  >
-    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-text-primary)] text-white">
-      <Plus size={18} />
-    </div>
+              <button
+                type="button"
+                onClick={handleSearch}
+                className="flex w-11 items-center cursor-pointer justify-center bg-[var(--color-text-primary)] text-white"
+              >
+                <Search size={18} />
+              </button>
+            </div>
+          </div>
 
-    <Text
-      as="h1"
-      variant="h4"
-      className="text-lg font-semibold text-[var(--color-text-primary)]"
-    >
-      Surgical World
-    </Text>
-  </Link>
+          {/* Desktop Right */}
 
-  {/* Search */}
+          <div className="hidden items-center gap-4 md:flex">
+            {/* Wishlist */}
 
-  <div className="hidden max-w-xl flex-1 md:flex">
-    <div className="flex h-[42px] w-full overflow-hidden rounded-lg border border-gray-200 bg-white">
-      <input
-        type="text"
-        placeholder="Search products..."
-        value={searchText}
-        onChange={(e) =>
-          setSearchText(e.target.value)
-        }
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            handleSearch();
-          }
-        }}
-        className="h-full flex-1 px-4 text-sm outline-none"
-      />
+            <button
+              type="button"
+              className="relative flex h-[42px] w-[42px] items-center justify-center"
+            >
+              <Heart size={18} />
 
-      <button
-        type="button"
-        onClick={handleSearch}
-        className="flex w-11 items-center cursor-pointer justify-center bg-[var(--color-text-primary)] text-white"
-      >
-        <Search size={18} />
-      </button>
-    </div>
-  </div>
+              <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
+                2
+              </span>
+            </button>
 
-  {/* Desktop Right */}
+            {/* Cart */}
 
-  <div className="hidden items-center gap-4 md:flex">
-    {/* Wishlist */}
+            <Link
+              href="/cart"
+              className="relative flex h-[42px] w-[42px] items-center justify-center"
+            >
+              <ShoppingCart size={18} />
 
-    <button
-      type="button"
-      className="relative flex h-[42px] w-[42px] items-center justify-center"
-    >
-      <Heart size={18} />
+              {mounted &&
+                cartCount > 0 && (
+                  <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--color-text-primary)] text-[10px] font-semibold text-white">
+                    {cartCount}
+                  </span>
+                )}
+            </Link>
 
-      <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
-        2
-      </span>
-    </button>
+            {/* User */}
 
-    {/* Cart */}
+            <div className="w-[170px]">
+              {!mounted ? (
+                <div className="h-[42px] w-full animate-pulse rounded-lg bg-gray-100" />
+              ) : user ? (
+                <div className="flex h-[42px] items-center justify-between rounded-lg border border-gray-200 px-3">
+                  <div className="flex items-center gap-2 overflow-hidden">
+                    <User
+                      size={16}
+                      className="shrink-0 text-[var(--color-text-primary)]"
+                    />
 
-    <Link
-      href="/cart"
-      className="relative flex h-[42px] w-[42px] items-center justify-center"
-    >
-      <ShoppingCart size={18} />
+                    <span className="truncate text-sm font-medium">
+                      {user.full_name}
+                    </span>
+                  </div>
 
-      {mounted &&
-        cartCount > 0 && (
-          <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--color-text-primary)] text-[10px] font-semibold text-white">
-            {cartCount}
-          </span>
-        )}
-    </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="ml-2 text-xs cursor-pointer font-medium text-red-500 hover:text-red-600"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setIsAuthOpen(true)
+                  }
+                  className="flex h-[42px] w-full items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3"
+                >
+                  <User
+                    size={16}
+                    className="text-[var(--color-text-primary)]"
+                  />
 
-    {/* User */}
+                  <span className="text-sm font-medium">
+                    Login
+                  </span>
+                </button>
+              )}
+            </div>
+          </div>
 
-    <div className="w-[160px]">
-      {!mounted ? (
-        <div className="h-[42px] w-full rounded-lg bg-gray-100 animate-pulse" />
-      ) : user ? (
-        <div className="flex h-[42px] items-center gap-2 rounded-lg border border-gray-200 px-3">
-          <User
-            size={16}
-            className="text-[var(--color-text-primary)]"
-          />
+          {/* Mobile */}
 
-          <span className="truncate text-sm font-medium">
-            {user.full_name}
-          </span>
+          <div className="flex items-center gap-2 md:hidden">
+            <Link
+              href="/cart"
+              className="relative flex h-9 w-9 items-center justify-center"
+            >
+              <ShoppingCart size={18} />
+
+              {mounted &&
+                cartCount > 0 && (
+                  <span className="absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--color-text-primary)] text-[10px] text-white">
+                    {cartCount}
+                  </span>
+                )}
+            </Link>
+
+            <button
+              type="button"
+              className="flex h-9 w-9 items-center justify-center"
+            >
+              <Menu size={20} />
+            </button>
+          </div>
         </div>
-      ) : (
-        <button
-          type="button"
-          onClick={() =>
-            setIsAuthOpen(true)
-          }
-          className="flex h-[42px] w-full items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3"
-        >
-          <User
-            size={16}
-            className="text-[var(--color-text-primary)]"
-          />
-
-          <span className="text-sm font-medium">
-            Login
-          </span>
-        </button>
-      )}
-    </div>
-  </div>
-
-  {/* Mobile */}
-
-  <div className="flex items-center gap-2 md:hidden">
-    <Link
-      href="/cart"
-      className="relative flex h-9 w-9 items-center justify-center"
-    >
-      <ShoppingCart size={18} />
-
-      {mounted &&
-        cartCount > 0 && (
-          <span className="absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--color-text-primary)] text-[10px] text-white">
-            {cartCount}
-          </span>
-        )}
-    </Link>
-
-    <button
-      type="button"
-      className="flex h-9 w-9 items-center justify-center"
-    >
-      <Menu size={20} />
-    </button>
-  </div>
-</div>
       </Container>
 
       <div className="hidden border-t md:block">
