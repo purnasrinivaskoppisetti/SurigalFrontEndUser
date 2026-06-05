@@ -12,5 +12,8 @@ export const API_ENDPOINTS = {
   GET_ADDRESS: `/api/v1/customer/addresses/{address_id}`,
   UPDATE_ADDRESS: `/api/v1/customer/addresses/{address_id}`,
   DELETE_ADDRESS: `/api/v1/customer/addresses/{address_id}`,
+  GET_ORDERS:`/api/v1/customer/orders`,
+  GET_ORDERBYID:`/api/v1/customer/orders/{order_id}`,
+  CREATE_REVIEW:`/api/v1/customer/reviews`,
 
 };
