@@ -11,9 +11,11 @@ import useLogin from "@/hooks/useLogin";
 import useRegister from "@/hooks/useRegister";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/userSlice";
+import Cookies from "js-cookie";
 export default function AuthModal({
     isOpen,
     onClose,
+     onSuccess,
 }) {
     const dispatch = useDispatch();
     const [activeTab, setActiveTab] =
@@ -67,33 +69,122 @@ export default function AuthModal({
             console.log(err);
         }
     };
-    const handleLogin = async (e) => {
+//     const handleLogin = async (e) => {
+//   e.preventDefault();
+
+//   try {
+//     const response = await login({
+//       email,
+//       password,
+//     });
+
+//     console.log(
+//       "LOGIN RESPONSE =>",
+//       response
+//     );
+
+//     const user =
+//       response.data.user;
+
+//     dispatch(setUser(user));
+
+//     localStorage.setItem(
+//       "user",
+//       JSON.stringify(user)
+//     );
+
+//     onClose();
+//   } catch (err) {
+//     console.log(err);
+//   }
+// };
+
+
+
+const handleLogin = async (e) => {
   e.preventDefault();
 
+  console.log("LOGIN BUTTON CLICKED");
+
   try {
+    console.log("CALLING LOGIN API");
+
     const response = await login({
       email,
       password,
     });
 
     console.log(
-      "LOGIN RESPONSE =>",
+      "FULL LOGIN RESPONSE =>",
       response
     );
 
-    const user =
-      response.data.user;
+    console.log(
+      "RESPONSE DATA =>",
+      response?.data
+    );
 
+    // try all possible paths
+    const token =
+      response?.data?.access_token ||
+      response?.data?.data?.token ||
+      response?.token;
+
+    const user =
+      response?.data?.user ||
+      response?.data?.user ||
+      response?.user;
+
+    console.log("TOKEN =>", token);
+
+    console.log("USER =>", user);
+
+    // token missing
+    if (!token) {
+      console.log(
+        "TOKEN NOT FOUND"
+      );
+
+      return;
+    }
+
+    // save redux
     dispatch(setUser(user));
 
+    // save localstorage
     localStorage.setItem(
       "user",
       JSON.stringify(user)
     );
 
+    // save cookie
+    Cookies.set("token", token, {
+      expires: 7,
+      path: "/",
+    });
+
+    console.log(
+      "COOKIE SAVED =>",
+      document.cookie
+    );
+
+    // close modal
     onClose();
+
+    // success
+    if (onSuccess) {
+      onSuccess();
+    }
   } catch (err) {
-    console.log(err);
+    console.log(
+      "LOGIN ERROR =>",
+      err
+    );
+
+    console.log(
+      "ERROR RESPONSE =>",
+      err?.response
+    );
   }
 };
     return (
@@ -326,3 +417,17 @@ export default function AuthModal({
         </div>
     );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
