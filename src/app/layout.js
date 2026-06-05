@@ -41,15 +41,17 @@
 
 
 
+import { Suspense } from "react";
 import { Noto_Sans } from "next/font/google";
 import "./globals.css";
 
+import {
+  AuthInitializer,
+  Header,
+  Footer,
+} from "@/components";
 
-
-import { AuthInitializer,Header,Footer } from "@/components";
 import AuthHandler from "@/components/common/Authhandler";
-
-
 import ReduxProvider from "@/providers/ReduxProvider";
 
 const notoSans = Noto_Sans({
@@ -60,7 +62,8 @@ const notoSans = Noto_Sans({
 
 export const metadata = {
   title: "Surgical World",
-  description: "Trusted Medical Equipment Store",
+  description:
+    "Trusted Medical Equipment Store",
 };
 
 export default function RootLayout({
@@ -75,16 +78,17 @@ export default function RootLayout({
         <ReduxProvider>
           <AuthInitializer />
 
-          {/* ✅ AUTH HANDLER */}
-          <AuthHandler>
-            <Header />
+          <Suspense fallback={null}>
+            <AuthHandler>
+              <Header />
 
-            <main className="flex-1">
-              {children}
-            </main>
+              <main className="flex-1">
+                {children}
+              </main>
 
-            <Footer />
-          </AuthHandler>
+              <Footer />
+            </AuthHandler>
+          </Suspense>
         </ReduxProvider>
       </body>
     </html>

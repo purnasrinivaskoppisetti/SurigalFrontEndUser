@@ -9,3 +9,21 @@ export const addWishlistService =
 
     return response.data;
   };
+export const getWishlistService =
+  async (
+    page = 1,
+    page_size = 20
+  ) => {
+    const response =
+      await api.get(
+        "/api/v1/customer/wishlist",
+        {
+          params: {
+            page,
+            page_size,
+          },
+        }
+      );
+
+    return response.data;
+  };
