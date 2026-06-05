@@ -153,7 +153,7 @@ export default function Header() {
             <Text
               as="h1"
               variant="h4"
-              className="text-lg font-semibold text-[var(--color-text-primary)]"
+              className="text-lg font-semibold text-text-primary"
             >
               Surgical World
             </Text>
