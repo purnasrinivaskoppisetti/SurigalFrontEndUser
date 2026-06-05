@@ -21,6 +21,10 @@ const NAV_LINKS = [
     label: "Contact",
     href: "/contact",
   },
+  {
+    label: "Orders",
+    href: "/orders",
+  },
 ];
 
 export default function HeaderNav() {

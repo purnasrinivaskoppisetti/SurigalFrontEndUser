@@ -55,7 +55,7 @@ export default function CheckoutForm() {
   };
 
   const handleContinuePayment = () => {
-    // router.push("/payment");
+    router.push("/payment");
   };
 
   const handleAddressSubmit = async (e) => {

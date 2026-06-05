@@ -311,6 +311,12 @@ export default function Header() {
             <NavLink href="/contact">
               Contact
             </NavLink>
+
+            {user && (
+  <NavLink href="/orders">
+    Orders
+  </NavLink>
+)}
           </nav>
         </Container>
       </div>
