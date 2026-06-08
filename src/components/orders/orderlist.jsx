@@ -2,8 +2,13 @@
 
 import { useState } from "react";
 
+import {
+  ChevronDown,
+  ChevronUp,
+  Star,
+} from "lucide-react";
+
 import ReviewModal from "./reviewmodel";
-import OrderCard from "./ordercard";
 
 import useOrders from "@/hooks/useorderreview";
 
@@ -11,11 +16,11 @@ export default function OrdersList() {
   // =========================
   // STATES
   // =========================
-  const [selectedOrder, setSelectedOrder] =
+  const [expandedOrder, setExpandedOrder] =
     useState(null);
 
-  const [detailsLoading, setDetailsLoading] =
-    useState(false);
+  const [selectedProduct, setSelectedProduct] =
+    useState(null);
 
   // =========================
   // HOOK
@@ -24,122 +29,48 @@ export default function OrdersList() {
     orders,
     loading,
     error,
-    fetchOrderById,
   } = useOrders();
 
   // =========================
-  // OPEN REVIEW MODAL
+  // TOGGLE ORDER
   // =========================
-  const handleOpenReview =
-    async (order) => {
-      try {
-        setDetailsLoading(true);
-
-        // FETCH SINGLE ORDER DETAILS
-        const orderDetails =
-          await fetchOrderById(
-            order.order_id
-          );
-
-        console.log(
-          "ORDER DETAILS =>",
-          orderDetails
-        );
-
-        // PRODUCTS ARRAY
-        const product =
-          orderDetails?.products?.[0];
-
-        // IMPORTANT
-        // BACKEND MUST RETURN PRODUCT_ID
-        if (!product?.product_id) {
-          alert(
-            "Product ID not found"
-          );
-
-          return;
-        }
-
-        // SET DATA FOR REVIEW MODAL
-        setSelectedOrder({
-          // ORDER DATA
-          ...order,
-
-          // PRODUCT DATA
-          product_id:
-            product?.product_id,
-
-          product_name:
-            product?.product_name ||
-            "Medical Product",
-
-          image:
-            product?.image_url ||
-            "/placeholder.png",
-
-          image_url:
-            product?.image_url ||
-            "/placeholder.png",
-
-          // UI DATA
-          total_amount:
-            order?.total_amount,
-
-          order_number:
-            order?.order_number,
-
-          payment_status:
-            order?.payment_status,
-
-          status:
-            order?.status,
-        });
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setDetailsLoading(false);
-      }
-    };
+  const toggleOrder = (orderId) => {
+    if (expandedOrder === orderId) {
+      setExpandedOrder(null);
+    } else {
+      setExpandedOrder(orderId);
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* ========================= */}
       {/* TITLE */}
-      {/* ========================= */}
       <div>
         <h2 className="text-2xl font-bold text-black">
           My Orders
         </h2>
 
         <p className="mt-1 text-sm text-gray-500">
-          View your recent orders and
-          share your product
-          experience.
+          View your orders and review
+          products.
         </p>
       </div>
 
-      {/* ========================= */}
       {/* LOADING */}
-      {/* ========================= */}
-      {(loading ||
-        detailsLoading) && (
+      {loading && (
         <div className="rounded-2xl border bg-white p-8 text-center text-sm text-gray-500">
           Loading orders...
         </div>
       )}
 
-      {/* ========================= */}
       {/* ERROR */}
-      {/* ========================= */}
       {error && (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-600">
           {error}
         </div>
       )}
 
-      {/* ========================= */}
       {/* EMPTY */}
-      {/* ========================= */}
       {!loading &&
         orders?.length === 0 && (
           <div className="rounded-2xl border bg-white p-8 text-center text-sm text-gray-500">
@@ -147,53 +78,157 @@ export default function OrdersList() {
           </div>
         )}
 
-      {/* ========================= */}
       {/* ORDERS */}
-      {/* ========================= */}
       {!loading &&
         orders?.map((order) => (
-          <OrderCard
-            key={order.order_id}
-            order={{
-              ...order,
+          <div
+            key={order?.order_id}
+            className="overflow-hidden rounded-3xl border border-gray-200 bg-white"
+          >
+            {/* ORDER HEADER */}
+            <button
+              onClick={() =>
+                toggleOrder(
+                  order?.order_id
+                )
+              }
+              className="flex w-full items-center justify-between p-5 text-left"
+            >
+              <div>
+                <h3 className="text-lg font-bold text-black">
+                  Order #
+                  {
+                    order?.order_number
+                  }
+                </h3>
 
-              // FALLBACK VALUES
-              product_name:
-                order?.product_name ||
-                "Medical Product",
+                <p className="mt-1 text-sm text-gray-500">
+                  Status:
+                  <span className="ml-1 capitalize text-green-600">
+                    {
+                      order?.status
+                    }
+                  </span>
+                </p>
 
-              image_url:
-                order?.image_url ||
-                "/placeholder.png",
+                <p className="mt-1 text-sm text-gray-500">
+                  Payment:
+                  <span className="ml-1 capitalize text-black">
+                    {
+                      order?.payment_status
+                    }
+                  </span>
+                </p>
 
-              image:
-                order?.image_url ||
-                "/placeholder.png",
+                <p className="mt-2 text-xl font-bold text-black">
+                  ₹
+                  {Number(
+                    order?.total_amount ||
+                      0
+                  ).toLocaleString()}
+                </p>
+              </div>
 
-              status:
-                order?.status,
+              {expandedOrder ===
+              order?.order_id ? (
+                <ChevronUp />
+              ) : (
+                <ChevronDown />
+              )}
+            </button>
 
-              payment_status:
-                order?.payment_status,
+            {/* PRODUCTS */}
+            {expandedOrder ===
+              order?.order_id && (
+              <div className="border-t border-gray-100 p-5">
+                <div className="grid gap-4 md:grid-cols-2">
+                  {order?.products?.map(
+                    (product) => (
+                      <div
+                        key={
+                          product?.product_id
+                        }
+                        className="flex items-center gap-4 rounded-2xl border border-gray-200 p-4"
+                      >
+                        {/* IMAGE */}
+                        <img
+                          src={
+                            product?.product_image ||
+                            "/placeholder.png"
+                          }
+                          alt={
+                            product?.product_name
+                          }
+                          className="h-24 w-24 rounded-2xl border object-cover"
+                        />
 
-              total_amount:
-                order?.total_amount,
-            }}
-            onReview={() =>
-              handleOpenReview(order)
-            }
-          />
+                        {/* DETAILS */}
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-black">
+                            {
+                              product?.product_name
+                            }
+                          </h4>
+
+                          <p className="mt-1 text-xs text-gray-500">
+                            Product ID:
+                          </p>
+
+                          <p className="text-xs text-black">
+                            {
+                              product?.product_id
+                            }
+                          </p>
+
+                          {/* REVIEW BUTTON */}
+                          <button
+                            onClick={() =>
+                              setSelectedProduct(
+                                {
+                                  ...product,
+
+                                  order_number:
+                                    order?.order_number,
+
+                                  total_amount:
+                                    order?.total_amount,
+
+                                  payment_status:
+                                    order?.payment_status,
+
+                                  status:
+                                    order?.status,
+
+                                  image:
+                                    product?.product_image,
+                                }
+                              )
+                            }
+                            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+                          >
+                            <Star size={16} />
+
+                            Write Review
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         ))}
 
-      {/* ========================= */}
       {/* REVIEW MODAL */}
-      {/* ========================= */}
-      <ReviewModal
-        order={selectedOrder}
-        onClose={() =>
-          setSelectedOrder(null)
-        }
-      />
+      {selectedProduct && (
+        <ReviewModal
+          order={selectedProduct}
+          onClose={() =>
+            setSelectedProduct(null)
+          }
+        />
+      )}
     </div>
   );
 }

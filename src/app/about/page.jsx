@@ -11,6 +11,7 @@ import {
 import Container from "@/components/ui/Container";
 import Text from "@/components/ui/Text";
 import Button from "@/components/ui/Button";
+import { useRouter } from "next/navigation";
 
 const stats = [
   {
@@ -58,6 +59,12 @@ const locations = [
 ];
 
 export default function AboutPage() {
+  const router=useRouter();
+  const handlechange=()=>{
+    router.push("/products")
+
+}
+
   return (
     <div>
       {/* Hero */}
@@ -80,6 +87,8 @@ export default function AboutPage() {
           <Button
             variant="success"
             className="mt-6"
+             onClick={handlechange}
+            
           >
             Explore Our Products →
           </Button>

@@ -1,7 +1,13 @@
+"use client";
 import Container from "@/components/ui/Container";
 import Text from "@/components/ui/Text";
 import { Phone, Star, Award, Truck } from "lucide-react";
+import { useRouter } from "next/navigation";
 export default function HeroSection() {
+  const router=useRouter();
+  const handlechange=()=>{
+    router.push("/products")
+  }
   return (
     <section className="py-12 lg:py-20">
       <Container>
@@ -48,8 +54,11 @@ export default function HeroSection() {
             </div>
             {/* CTA */}
             <div className="flex flex-wrap gap-4 mt-8">
-              <button className="bg-text-primary text-white px-8 py-4 rounded-xl font-semibold hover:opacity-90 transition">
+              <button onClick={handlechange}
+
+              className="bg-text-primary text-white px-8 py-4 rounded-xl font-semibold hover:opacity-90 transition">
                 Shop Now →
+                
               </button>
 
               <button className="border border-accent text-accent px-8 py-4 rounded-xl font-semibold flex items-center gap-2 hover:bg-accent hover:text-white transition">
