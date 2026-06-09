@@ -2,42 +2,30 @@
 
 import { useState } from "react";
 
-import usePaymentSuccess from "@/hooks/usePayment";
-
 export default function UpiPayment({
-  orderId,
+  loading,
+  error,
+  success,
+  handlePaymentSuccess,
 }) {
-  // =========================
-  // STATES
-  // =========================
+
   const [upiId, setUpiId] =
     useState("");
 
-  // =========================
-  // HOOK
-  // =========================
-  const {
-    loading,
-    error,
-    success,
-    handlePaymentSuccess,
-  } = usePaymentSuccess();
-
-  // =========================
-  // HANDLE PAYMENT
-  // =========================
   const handlePay = async () => {
+
     if (!upiId) {
       alert("Enter UPI ID");
-
       return;
     }
 
-    const transactionId = `UPI-${Date.now()}`;
+    const transactionId =
+      `UPI-${Date.now()}`;
 
     const response =
       await handlePaymentSuccess({
-        order_id: orderId,
+        order_id:
+          "demo-order-id",
         transaction_id:
           transactionId,
       });
@@ -51,11 +39,13 @@ export default function UpiPayment({
 
   return (
     <div className="rounded-3xl border bg-white p-6 shadow-sm">
+
       <h2 className="text-xl font-bold text-black">
         UPI Payment
       </h2>
 
       <div className="mt-6">
+
         <label className="mb-2 block text-sm font-medium text-gray-700">
           Enter UPI ID
         </label>
@@ -87,16 +77,7 @@ export default function UpiPayment({
         <button
           onClick={handlePay}
           disabled={loading}
-          className="
-            mt-5
-            h-12
-            w-full
-            rounded-2xl
-            bg-black
-            text-sm
-            font-semibold
-            text-white
-          "
+          className="mt-5 h-12 w-full rounded-2xl bg-black text-sm font-semibold text-white"
         >
           {loading
             ? "Processing..."

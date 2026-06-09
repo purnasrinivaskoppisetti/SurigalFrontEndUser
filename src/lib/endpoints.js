@@ -15,6 +15,8 @@ export const API_ENDPOINTS = {
   GET_ORDERS:`/api/v1/customer/orders`,
   GET_ORDERBYID:`/api/v1/customer/orders/{order_id}`,
   CREATE_REVIEW:`/api/v1/customer/reviews`,
-  PAYMENT:`/api/v1/customer/orders/payment-success`
+  PAYMENT:`/api/v1/customer/orders/payment-success`,
+  CREATE_ORDER:`api/v1/customer/orders`
+  
 
 };

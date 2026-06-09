@@ -1,3 +1,5 @@
+
+
 "use client";
 
 import { useState } from "react";
@@ -27,18 +29,84 @@ export default function CartItem({
   const [loading, setLoading] =
     useState(false);
 
+  // =========================
+  // UPDATE QUANTITY
+  // =========================
   const updateQuantity =
     async (newQty) => {
+      if (loading) return;
+
+      // prevent below 1
+      if (newQty < 1) return;
+
       try {
         setLoading(true);
 
-        setQty(newQty);
+        // =========================
+        // PLUS BUTTON
+        // =========================
+        if (newQty > qty) {
+
+          // send only +1
+          const response =
+            await addCart(
+              item.product_id,
+              1
+            );
+
+          if (
+            response?.success
+          ) {
+            const updatedQty =
+              qty + 1;
+
+            setQty(
+              updatedQty
+            );
+
+            await fetchCart(
+              false
+            );
+          }
+        }
+
+        // =========================
+        // MINUS BUTTON
+        // =========================
+        else if (
+          newQty < qty
+        ) {
+
+          // frontend only decrease
+          setQty(
+            (prev) =>
+              prev - 1
+          );
+        }
+
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+  // =========================
+  // REMOVE ITEM
+  // =========================
+  const handleRemove =
+    async () => {
+      try {
+        setLoading(true);
 
         const response =
-          await addCart(
-            item.product_id,
-            newQty
+          await removeItem(
+            item.product_id
           );
+
+        console.log(
+          response
+        );
 
         if (
           response?.success
@@ -49,48 +117,16 @@ export default function CartItem({
         }
       } catch (error) {
         console.log(error);
-
-        setQty(
-          item.quantity
-        );
       } finally {
         setLoading(false);
       }
     };
 
-  const handleRemove =
-  async () => {
-    try {
-      setLoading(true);
-
-      const response =
-        await removeItem(
-          item.product_id
-        );
-
-      console.log(
-        response
-      );
-
-      if (
-        response?.success
-      ) {
-        await fetchCart(
-          false
-        );
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="rounded-2xl border bg-white p-5 shadow-sm">
       <div className="flex flex-col gap-4 sm:flex-row">
-        {/* Product Image */}
 
+        {/* Product Image */}
         <div className="overflow-hidden rounded-xl border bg-gray-50">
           <Image
             src={
@@ -104,8 +140,8 @@ export default function CartItem({
         </div>
 
         {/* Product Info */}
-
         <div className="flex-1">
+
           <Text
             variant="h5"
             className="text-black"
@@ -129,6 +165,7 @@ export default function CartItem({
             }
           </Text>
 
+          {/* PRICE */}
           <div className="mt-3 flex items-center gap-3">
             <Text
               variant="h5"
@@ -144,15 +181,22 @@ export default function CartItem({
             </span>
           </div>
 
+          {/* TOTAL */}
           <Text className="mt-2 font-semibold text-green-600">
             Total: ₹
-            {item.item_total.toLocaleString()}
+            {(
+              qty *
+              item.sale_price
+            ).toLocaleString()}
           </Text>
 
-          {/* Actions */}
-
+          {/* ACTIONS */}
           <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
+
+            {/* QUANTITY */}
             <div className="flex items-center rounded-xl border">
+
+              {/* MINUS */}
               <button
                 type="button"
                 disabled={
@@ -164,17 +208,19 @@ export default function CartItem({
                     qty - 1
                   )
                 }
-                className="flex h-10 w-10 items-center justify-center hover:bg-gray-50"
+                className="flex h-10 w-10 items-center justify-center hover:bg-gray-50 disabled:opacity-50"
               >
                 <Minus
                   size={18}
                 />
               </button>
 
+              {/* QUANTITY */}
               <span className="min-w-[50px] text-center font-semibold">
                 {qty}
               </span>
 
+              {/* PLUS */}
               <button
                 type="button"
                 disabled={
@@ -185,7 +231,7 @@ export default function CartItem({
                     qty + 1
                   )
                 }
-                className="flex h-10 w-10 items-center justify-center hover:bg-gray-50"
+                className="flex h-10 w-10 items-center justify-center hover:bg-gray-50 disabled:opacity-50"
               >
                 <Plus
                   size={18}
@@ -193,6 +239,7 @@ export default function CartItem({
               </button>
             </div>
 
+            {/* REMOVE */}
             <button
               type="button"
               disabled={
@@ -206,6 +253,7 @@ export default function CartItem({
               <Trash2
                 size={18}
               />
+
               Remove
             </button>
           </div>

@@ -9,3 +9,15 @@ export const paymentSuccessService = async (paymentData) => {
 
   return response.data;
 };
+
+
+export const createOrderService =
+  async (orderData) => {
+    const response =
+      await api.post(
+        API_ENDPOINTS.CREATE_ORDER,
+        orderData
+      );
+
+    return response.data;
+  };
