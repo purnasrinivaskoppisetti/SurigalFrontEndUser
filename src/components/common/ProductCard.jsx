@@ -1,10 +1,13 @@
-
-
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, ShoppingCart, Star } from "lucide-react";
+import {
+  Heart,
+  ShoppingCart,
+  Star,
+} from "lucide-react";
+
 import { useState } from "react";
 
 import Text from "@/components/ui/Text";
@@ -18,10 +21,15 @@ export default function ProductCard({ product }) {
   const [addingCart, setAddingCart] = useState(false);
 
   const { addCart } = useCart();
-  const { addToWishlist, removeFromWishlist, isWishlisted } =
-    useWishlist();
+
+  const {
+    addToWishlist,
+    removeFromWishlist,
+    isWishlisted,
+  } = useWishlist();
 
   const user = true;
+
   const id = product?.id;
 
   const imageUrl =
@@ -39,23 +47,37 @@ export default function ProductCard({ product }) {
       return;
     }
 
-    if (isWishlisted(id)) {
-      await removeFromWishlist(id);
-    } else {
-      await addToWishlist(id);
+    try {
+      if (isWishlisted(id)) {
+        await removeFromWishlist(id);
+      } else {
+        await addToWishlist(id);
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
-  // 🛒 Cart
+  // 🛒 Add Cart
   const handleCart = async (e) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!user) {
+      setIsAuthOpen(true);
+      return;
+    }
 
     if (addingCart) return;
 
     try {
       setAddingCart(true);
+
       await addCart(id, 1);
+
+      console.log("Added to cart");
+    } catch (error) {
+      console.log(error);
     } finally {
       setAddingCart(false);
     }
@@ -63,28 +85,34 @@ export default function ProductCard({ product }) {
 
   return (
     <>
-      <Link href={`/products/${id}`} className="group block">
-
-        <div className="
-          flex flex-col overflow-hidden rounded-lg border bg-white shadow-sm
+      <div
+        className="
+          group flex flex-col overflow-hidden
+          rounded-lg border bg-white shadow-sm
           transition hover:shadow-md
-        ">
-
-          {/* IMAGE */}
-          <div className="relative aspect-[4/3] sm:aspect-[16/10] bg-slate-100">
+        "
+      >
+        {/* IMAGE */}
+        <Link href={`/products/${id}`}>
+          <div className="relative aspect-[4/3] sm:aspect-[16/10] bg-slate-100 overflow-hidden">
 
             <Image
               src={imageUrl}
               alt={product?.name || "Product"}
               fill
               sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-cover transition-transform group-hover:scale-105"
+                    className="object-contain p-1 transition-transform group-hover:scale-105"
+
             />
 
-            {/* HEART */}
+            {/* ❤️ Wishlist */}
             <button
               onClick={handleWishlist}
-              className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow"
+              className="
+                absolute right-2 top-2
+                flex h-8 w-8 items-center justify-center
+                rounded-full bg-white shadow
+              "
             >
               <Heart
                 size={14}
@@ -96,67 +124,82 @@ export default function ProductCard({ product }) {
               />
             </button>
           </div>
+        </Link>
 
-          {/* CONTENT */}
-          <div className="p-3 sm:p-4">
+        {/* CONTENT */}
+        <div className="p-3 sm:p-4">
 
-            {/* NAME */}
-            <h3 className="text-sm sm:text-base font-semibold line-clamp-2">
+          {/* NAME */}
+          <Link href={`/products/${id}`}>
+            <h3 className="text-sm sm:text-base font-semibold line-clamp-2 hover:text-[var(--color-text-primary)] transition">
               {product?.name}
             </h3>
+          </Link>
 
-            {/* RATING */}
-            <div className="mt-1 flex items-center gap-1 text-xs sm:text-sm text-gray-600">
-              <Star size={12} className="text-yellow-500 fill-yellow-500" />
-              <span>
-                {product?.rating} ({product?.review_count})
-              </span>
-            </div>
+          {/* RATING */}
+          <div className="mt-1 flex items-center gap-1 text-xs sm:text-sm text-gray-600">
+            <Star
+              size={12}
+              className="fill-yellow-500 text-yellow-500"
+            />
 
-            {/* PRICE */}
-            <div className="mt-2 flex flex-col sm:flex-row sm:items-center sm:gap-2">
-              <span className="text-base sm:text-lg font-bold text-green-600">
-                ₹{product?.sale_price}
-              </span>
+            <span>
+              {product?.rating} ({product?.review_count})
+            </span>
+          </div>
 
-              <span className="text-xs sm:text-sm text-gray-400 line-through">
-                ₹{product?.mrp}
-              </span>
-            </div>
+          {/* PRICE */}
+          <div className="mt-2 flex flex-col sm:flex-row sm:items-center sm:gap-2">
+            <span className="text-base sm:text-lg font-bold text-green-600">
+              ₹{product?.sale_price}
+            </span>
 
-            {/* STOCK */}
-            <p className="mt-1 text-[11px] sm:text-xs text-gray-500">
-              {product?.stock_status} • {product?.stock_qty} left
-            </p>
+            <span className="text-xs sm:text-sm text-gray-400 line-through">
+              ₹{product?.mrp}
+            </span>
+          </div>
 
-            {/* ACTIONS */}
-            <div className="mt-3 flex gap-2">
+          {/* STOCK */}
+          <p className="mt-1 text-[11px] sm:text-xs text-gray-500">
+            {product?.stock_status} • {product?.stock_qty} left
+          </p>
 
-              {/* CART */}
-              <button
-                onClick={handleCart}
-                disabled={addingCart}
-                className="
-                  flex flex-1 items-center justify-center gap-2
-                  rounded-md bg-[var(--color-text-primary)]
-                  py-2 text-xs sm:text-sm text-white
-                  active:scale-95 transition
-                "
-              >
-                <ShoppingCart size={14} />
-                {addingCart ? "Adding..." : "Add"}
-              </button>
+          {/* ACTIONS */}
+          <div className="mt-3 flex gap-2">
 
-              {/* VIEW */}
-              <span className="flex items-center gap-1 text-xs sm:text-sm text-gray-600">
-                View
-              </span>
+            {/* ADD CART */}
+            <button
+              onClick={handleCart}
+              disabled={addingCart}
+              className="
+                flex flex-1 items-center justify-center gap-2
+                rounded-md bg-[var(--color-text-primary)]
+                py-2 text-xs sm:text-sm text-white
+                transition active:scale-95
+                disabled:opacity-70
+              "
+            >
+              <ShoppingCart size={14} />
 
-            </div>
+              {addingCart ? "Adding..." : "Add to Cart"}
+            </button>
+
+            {/* VIEW */}
+            {/* <Link
+              href={`/products/${id}`}
+              className="
+                flex items-center justify-center
+                rounded-md border px-3
+                text-xs sm:text-sm text-gray-600
+                hover:bg-gray-50
+              "
+            >
+              View
+            </Link> */}
 
           </div>
         </div>
-      </Link>
+      </div>
 
       {/* AUTH MODAL */}
       <AuthModal
