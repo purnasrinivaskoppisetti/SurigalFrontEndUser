@@ -1,215 +1,167 @@
+
+
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Heart,
-} from "lucide-react";
-
-import {
-  useDispatch,
-  useSelector,
-} from "react-redux";
+import { Heart, ShoppingCart, Star } from "lucide-react";
+import { useState } from "react";
 
 import Text from "@/components/ui/Text";
-
-import {
-  addWishlist,
-  removeWishlist,
-} from "@/redux/wishlistSlice";
-
-import { addWishlistService } from "@/services/wishlist.service";
-import { useState } from "react";
 import { AuthModal } from "@/components";
-export default function ProductCard({
-  product,
-}) {
-  const dispatch =
-    useDispatch();
-  const [isAuthOpen, setIsAuthOpen] =
-    useState(false);
 
-  const user = useSelector(
-    (state) => state.user.user
-  );
-  const wishlist =
-    useSelector(
-      (state) =>
-        state.wishlist.items
-    );
+import useWishlist from "@/hooks/useWishlist";
+import useCart from "@/hooks/useCart";
 
-  const isWishlisted =
-    wishlist.includes(
-      product.id
-    );
+export default function ProductCard({ product }) {
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [addingCart, setAddingCart] = useState(false);
 
-  const handleWishlist =
-    async (e) => {
-      e.preventDefault();
+  const { addCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isWishlisted } =
+    useWishlist();
 
-      if (!user) {
-        setIsAuthOpen(true);
-        return;
-      }
+  const user = true;
+  const id = product?.id;
 
-      try {
-        await addWishlistService(
-          product.id
-        );
+  const imageUrl =
+    product?.thumbnail_url ||
+    product?.images?.[0]?.image_url ||
+    "/images/product-placeholder.png";
 
-        if (
-          isWishlisted
-        ) {
-          dispatch(
-            removeWishlist(
-              product.id
-            )
-          );
-        } else {
-          dispatch(
-            addWishlist(
-              product.id
-            )
-          );
-        }
-      } catch (error) {
-        console.log(
-          "Wishlist Error",
-          error
-        );
-      }
-    };
+  // ❤️ Wishlist
+  const handleWishlist = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      setIsAuthOpen(true);
+      return;
+    }
+
+    if (isWishlisted(id)) {
+      await removeFromWishlist(id);
+    } else {
+      await addToWishlist(id);
+    }
+  };
+
+  // 🛒 Cart
+  const handleCart = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (addingCart) return;
+
+    try {
+      setAddingCart(true);
+      await addCart(id, 1);
+    } finally {
+      setAddingCart(false);
+    }
+  };
 
   return (
     <>
-      <Link
-        href={`/products/${product.id}`}
-        className="group block"
-      >
-        <div
-          className="
-          flex h-full flex-col
-          overflow-hidden
-          rounded-md
-          border border-slate-200
-          bg-white
-          shadow-sm
-          transition-all
-          duration-300
-          hover:-translate-y-1
-          hover:shadow-lg
-        "
-        >
-          {/* Image */}
+      <Link href={`/products/${id}`} className="group block">
 
-          <div className="relative aspect-[16/10] bg-slate-100">
+        <div className="
+          flex flex-col overflow-hidden rounded-lg border bg-white shadow-sm
+          transition hover:shadow-md
+        ">
+
+          {/* IMAGE */}
+          <div className="relative aspect-[4/3] sm:aspect-[16/10] bg-slate-100">
+
             <Image
-              src={
-                product?.thumbnail_url ||
-                "/images/product-placeholder.png"
-              }
-              alt={
-                product?.name ||
-                "Product"
-              }
+              src={imageUrl}
+              alt={product?.name || "Product"}
               fill
-              className="
-              object-cover
-              transition-transform
-              duration-500
-              group-hover:scale-105
-            "
+              sizes="(max-width: 768px) 100vw, 33vw"
+              className="object-cover transition-transform group-hover:scale-105"
             />
 
-            {/* Wishlist */}
-
+            {/* HEART */}
             <button
-              type="button"
-              onClick={
-                handleWishlist
-              }
-              className="
-              absolute
-              right-3
-              top-3
-              flex
-              h-8
-              w-8
-              items-center
-              justify-center
-              rounded-full
-              bg-white
-              shadow-md
-              transition
-              hover:scale-110
-            "
+              onClick={handleWishlist}
+              className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow"
             >
               <Heart
-                size={16}
+                size={14}
                 className={
-                  isWishlisted
+                  isWishlisted(id)
                     ? "fill-red-500 text-red-500"
-                    : "text-slate-600"
+                    : "text-gray-500"
                 }
               />
             </button>
           </div>
 
-          {/* Content */}
+          {/* CONTENT */}
+          <div className="p-3 sm:p-4">
 
-          <div className="flex flex-1 flex-col p-4">
-            <Text
-              as="h3"
-              variant="h6"
-              className="
-              line-clamp-2
-              text-slate-900
-            "
-            >
-              {product.name}
-            </Text>
+            {/* NAME */}
+            <h3 className="text-sm sm:text-base font-semibold line-clamp-2">
+              {product?.name}
+            </h3>
 
-            {product.category_name && (
-              <Text
-                variant="bodySmall"
-                className="mt-1"
-              >
-                {
-                  product.category_name
-                }
-              </Text>
-            )}
-
-            <div className="my-4 h-px bg-slate-100" />
-
-            <div className="mt-auto flex items-center justify-between">
-              <Text
-                variant="label"
-                className="text-text-primary"
-              >
-                View Details
-              </Text>
-
-              <ArrowRight
-                size={18}
-                className="
-                text-[var(--color-text-primary)]
-                transition-transform
-                duration-300
-                group-hover:translate-x-1
-              "
-              />
+            {/* RATING */}
+            <div className="mt-1 flex items-center gap-1 text-xs sm:text-sm text-gray-600">
+              <Star size={12} className="text-yellow-500 fill-yellow-500" />
+              <span>
+                {product?.rating} ({product?.review_count})
+              </span>
             </div>
+
+            {/* PRICE */}
+            <div className="mt-2 flex flex-col sm:flex-row sm:items-center sm:gap-2">
+              <span className="text-base sm:text-lg font-bold text-green-600">
+                ₹{product?.sale_price}
+              </span>
+
+              <span className="text-xs sm:text-sm text-gray-400 line-through">
+                ₹{product?.mrp}
+              </span>
+            </div>
+
+            {/* STOCK */}
+            <p className="mt-1 text-[11px] sm:text-xs text-gray-500">
+              {product?.stock_status} • {product?.stock_qty} left
+            </p>
+
+            {/* ACTIONS */}
+            <div className="mt-3 flex gap-2">
+
+              {/* CART */}
+              <button
+                onClick={handleCart}
+                disabled={addingCart}
+                className="
+                  flex flex-1 items-center justify-center gap-2
+                  rounded-md bg-[var(--color-text-primary)]
+                  py-2 text-xs sm:text-sm text-white
+                  active:scale-95 transition
+                "
+              >
+                <ShoppingCart size={14} />
+                {addingCart ? "Adding..." : "Add"}
+              </button>
+
+              {/* VIEW */}
+              <span className="flex items-center gap-1 text-xs sm:text-sm text-gray-600">
+                View
+              </span>
+
+            </div>
+
           </div>
         </div>
-
       </Link>
+
+      {/* AUTH MODAL */}
       <AuthModal
         isOpen={isAuthOpen}
-        onClose={() =>
-          setIsAuthOpen(false)
-        }
+        onClose={() => setIsAuthOpen(false)}
       />
     </>
   );

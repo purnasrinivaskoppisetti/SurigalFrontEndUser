@@ -1,6 +1,54 @@
 "use client";
 
-export default function UpiPayment() {
+import { useState } from "react";
+
+import usePaymentSuccess from "@/hooks/usePayment";
+
+export default function UpiPayment({
+  orderId,
+}) {
+  // =========================
+  // STATES
+  // =========================
+  const [upiId, setUpiId] =
+    useState("");
+
+  // =========================
+  // HOOK
+  // =========================
+  const {
+    loading,
+    error,
+    success,
+    handlePaymentSuccess,
+  } = usePaymentSuccess();
+
+  // =========================
+  // HANDLE PAYMENT
+  // =========================
+  const handlePay = async () => {
+    if (!upiId) {
+      alert("Enter UPI ID");
+
+      return;
+    }
+
+    const transactionId = `UPI-${Date.now()}`;
+
+    const response =
+      await handlePaymentSuccess({
+        order_id: orderId,
+        transaction_id:
+          transactionId,
+      });
+
+    if (response.success) {
+      alert(
+        "UPI Payment Successful"
+      );
+    }
+  };
+
   return (
     <div className="rounded-3xl border bg-white p-6 shadow-sm">
       <h2 className="text-xl font-bold text-black">
@@ -15,10 +63,30 @@ export default function UpiPayment() {
         <input
           type="text"
           placeholder="example@upi"
+          value={upiId}
+          onChange={(e) =>
+            setUpiId(
+              e.target.value
+            )
+          }
           className="h-12 w-full rounded-2xl border border-gray-300 px-4 outline-none focus:border-black"
         />
 
+        {error && (
+          <p className="mt-2 text-sm text-red-500">
+            {error}
+          </p>
+        )}
+
+        {success && (
+          <p className="mt-2 text-sm text-green-600">
+            Payment successful
+          </p>
+        )}
+
         <button
+          onClick={handlePay}
+          disabled={loading}
           className="
             mt-5
             h-12
@@ -30,7 +98,9 @@ export default function UpiPayment() {
             text-white
           "
         >
-          Verify & Pay
+          {loading
+            ? "Processing..."
+            : "Verify & Pay"}
         </button>
       </div>
     </div>

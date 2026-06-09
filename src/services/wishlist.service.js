@@ -27,3 +27,12 @@ export const getWishlistService =
 
     return response.data;
   };
+
+
+  export const removeWishlistService = async (productId) => {
+  const response = await api.delete(
+    `/api/v1/customer/wishlist/${productId}`
+  );
+
+  return response.data;
+};

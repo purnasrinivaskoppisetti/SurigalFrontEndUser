@@ -1,6 +1,57 @@
 "use client";
 
-export default function NetBanking() {
+import { useState } from "react";
+
+import usePaymentSuccess from "@/hooks/usePayment";
+
+export default function NetBanking({
+  orderId,
+}) {
+  // =========================
+  // STATES
+  // =========================
+  const [bank, setBank] =
+    useState("");
+
+  // =========================
+  // HOOK
+  // =========================
+  const {
+    loading,
+    error,
+    success,
+    handlePaymentSuccess,
+  } = usePaymentSuccess();
+
+  // =========================
+  // HANDLE PAYMENT
+  // =========================
+  const handleBankPayment =
+    async () => {
+      if (!bank) {
+        alert(
+          "Please select a bank"
+        );
+
+        return;
+      }
+
+      const transactionId = `BANK-${Date.now()}`;
+
+      const response =
+        await handlePaymentSuccess({
+          order_id: orderId,
+          transaction_id:
+            transactionId,
+        });
+
+      if (response.success) {
+        alert(
+          "Payment Successful"
+        );
+      }
+    };
+
   return (
     <div className="rounded-3xl border bg-white p-6 shadow-sm">
       <h2 className="text-xl font-bold text-black">
@@ -13,6 +64,12 @@ export default function NetBanking() {
         </label>
 
         <select
+          value={bank}
+          onChange={(e) =>
+            setBank(
+              e.target.value
+            )
+          }
           className="
             h-12
             w-full
@@ -24,7 +81,7 @@ export default function NetBanking() {
             focus:border-black
           "
         >
-          <option>
+          <option value="">
             Select Your Bank
           </option>
 
@@ -45,7 +102,23 @@ export default function NetBanking() {
           </option>
         </select>
 
+        {error && (
+          <p className="mt-2 text-sm text-red-500">
+            {error}
+          </p>
+        )}
+
+        {success && (
+          <p className="mt-2 text-sm text-green-600">
+            Payment successful
+          </p>
+        )}
+
         <button
+          onClick={
+            handleBankPayment
+          }
+          disabled={loading}
           className="
             mt-5
             h-12
@@ -57,7 +130,9 @@ export default function NetBanking() {
             text-white
           "
         >
-          Continue To Bank
+          {loading
+            ? "Processing..."
+            : "Continue To Bank"}
         </button>
       </div>
     </div>
