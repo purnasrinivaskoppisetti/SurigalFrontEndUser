@@ -220,7 +220,7 @@ export default function OrdersList() {
                             }
                           </h4>
 
-                          <p className="mt-1 text-xs text-gray-500">
+                          {/* <p className="mt-1 text-xs text-gray-500">
                             Product ID:
                           </p>
 
@@ -228,7 +228,7 @@ export default function OrdersList() {
                             {
                               product?.product_id
                             }
-                          </p>
+                          </p> */}
 
                           {/* REVIEW BUTTON */}
 {order?.status?.toLowerCase() ===

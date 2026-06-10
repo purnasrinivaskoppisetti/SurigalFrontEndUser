@@ -14,7 +14,6 @@ export default function WishlistPage() {
   const {
     wishlist,
     loading,
-    pagination,
     fetchWishlist,
     removeFromWishlist,
   } = useWishlist();
@@ -24,29 +23,47 @@ export default function WishlistPage() {
   }, []);
 
   return (
-    <section className="py-8">
+    <section className="py-6 sm:py-8">
       <Container>
-        <div className="mb-8 flex justify-between">
-          <Text variant="h3">My Wishlist</Text>
 
-          <Text>{wishlist.length} Items</Text>
+        {/* HEADER */}
+        <div className="
+          mb-6 sm:mb-8
+          flex flex-col sm:flex-row
+          gap-2 sm:items-center sm:justify-between
+        ">
+
+          <Text variant="h3" className="text-xl sm:text-2xl">
+            My Wishlist
+          </Text>
+
+          <Text className="text-sm sm:text-base text-gray-600">
+            {wishlist?.length || 0} Items
+          </Text>
+
         </div>
 
+        {/* CONTENT */}
         {loading ? (
-          <div>Loading...</div>
-        ) : wishlist.length > 0 ? (
+          <div className="flex items-center justify-center py-10 text-gray-500">
+            Loading...
+          </div>
+        ) : wishlist?.length > 0 ? (
           <WishlistGrid
             wishlist={wishlist}
             removeFromWishlist={removeFromWishlist}
           />
         ) : (
-          <EmptyWishlist
-            title="Your wishlist is empty"
-            description="Save products you love."
-            buttonText="Explore Products"
-            buttonLink="/products"
-          />
+          <div className="py-10">
+            <EmptyWishlist
+              title="Your wishlist is empty"
+              description="Save products you love."
+              buttonText="Explore Products"
+              buttonLink="/products"
+            />
+          </div>
         )}
+
       </Container>
     </section>
   );
