@@ -21,3 +21,21 @@ export const createOrderService =
 
     return response.data;
   };
+
+
+ 
+
+export const getCartSummaryService = async () => {
+  const response = await api.get(
+    API_ENDPOINTS.CART_SUMMERY
+  );
+  return response.data;
+};
+
+export const applyCouponService = async (coupon_code) => {
+  const response = await api.post(API_ENDPOINTS.APPLY_COUPON, {
+    coupon_code,
+  });
+
+  return response.data;
+};
