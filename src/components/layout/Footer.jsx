@@ -25,7 +25,7 @@ const QUICK_LINKS = [
   { label: "Categories", href: "/categories" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
-  { label: "Track Order", href: "/track-order" },
+ 
 ];
 
 const CATEGORIES = [

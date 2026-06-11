@@ -1,264 +1,221 @@
+
+
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  useParams,
-  useRouter,
-} from "next/navigation";
-
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import {
-  Container,
-  Text,
-  Button,
-} from "@/components";
-
+import { Container, Text, Button, AuthModal } from "@/components";
 import useCart from "@/hooks/useCart";
 import useProductDetails from "@/hooks/useProductDetails";
 import { useSelector } from "react-redux";
-import { AuthModal } from "@/components";
+
 export default function Page() {
   const { id } = useParams();
-  const [isAuthOpen, setIsAuthOpen] =
-    useState(false);
+  const router = useRouter();
 
-  const user = useSelector(
-    (state) => state.user.user
-  );
-  const router =
-    useRouter();
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const {
-    product,
-    loading,
-    fetchProduct,
-  } = useProductDetails();
+  const user = useSelector((state) => state.user.user);
 
-  const { addCart } =
-    useCart();
-
-  const [adding, setAdding] =
-    useState(false);
+  const { product, loading, fetchProduct } = useProductDetails();
+  const { addCart } = useCart();
 
   useEffect(() => {
-    if (id) {
-      fetchProduct(id);
-    }
+    if (id) fetchProduct(id);
   }, [id]);
 
-  const handleBuyNow =
-    async () => {
-      if (!user) {
-        setIsAuthOpen(true);
-        return;
+  // reset image index when product changes
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [product?.id]);
+
+  const images =
+    product?.images?.length > 0
+      ? product.images
+      : [{ image_url: product?.thumbnail_url }];
+
+  const handlePrev = () => {
+    setCurrentImageIndex((prev) =>
+      prev === 0 ? images.length - 1 : prev - 1
+    );
+  };
+
+  const handleNext = () => {
+    setCurrentImageIndex((prev) =>
+      prev === images.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  const handleBuyNow = async () => {
+    if (!user) {
+      setIsAuthOpen(true);
+      return;
+    }
+
+    try {
+      setAdding(true);
+
+      const response = await addCart(product.id, 1);
+
+      if (response?.success) {
+        router.push("/cart");
       }
-
-      try {
-        setAdding(true);
-
-        const response =
-          await addCart(
-            product.id,
-            1
-          );
-
-        if (
-          response?.success
-        ) {
-          router.push(
-            "/cart"
-          );
-        }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setAdding(false);
-      }
-    };
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setAdding(false);
+    }
+  };
 
   if (loading) {
-    return (
-      <div className="py-20 text-center">
-        Loading...
-      </div>
-    );
+    return <div className="py-20 text-center">Loading...</div>;
   }
 
   if (!product) {
-    return (
-      <div className="py-20 text-center">
-        Product not found
-      </div>
-    );
+    return <div className="py-20 text-center">Product not found</div>;
   }
 
   return (
     <section className="py-6 md:py-10">
       <Container>
         <div className="grid gap-8 lg:grid-cols-2">
-          {/* Image */}
 
+          {/* IMAGE GALLERY */}
           <div className="overflow-hidden rounded-2xl border bg-white">
-            <div className="relative h-[320px] md:h-[500px]">
+            <div className="relative h-[320px] md:h-[500px] flex items-center justify-center">
+
+              {/* Left Arrow */}
+              <button
+                onClick={handlePrev}
+                className="absolute left-3 z-10 rounded-full bg-white/80 p-2 shadow hover:bg-white"
+              >
+                <ChevronLeft />
+              </button>
+
+              {/* Image */}
               <Image
                 src={
-                  product.thumbnail_url ||
+                  images[currentImageIndex]?.image_url ||
                   "/images/product-placeholder.png"
                 }
-                alt={
-                  product.name
-                }
+                alt={product.name}
                 fill
-                className="object-contain p-4"
+                className="object-contain p-4 transition-all duration-300"
               />
+
+              {/* Right Arrow */}
+              <button
+                onClick={handleNext}
+                className="absolute right-3 z-10 rounded-full bg-white/80 p-2 shadow hover:bg-white"
+              >
+                <ChevronRight />
+              </button>
+            </div>
+
+            {/* Thumbnail strip */}
+            <div className="flex gap-2 p-3 overflow-x-auto border-t">
+              {images.map((img, index) => (
+                <div
+                  key={index}
+                  onClick={() => setCurrentImageIndex(index)}
+                  className={`relative h-16 w-16 flex-shrink-0 cursor-pointer rounded border ${
+                    index === currentImageIndex
+                      ? "border-black"
+                      : "border-gray-200"
+                  }`}
+                >
+                  <Image
+                    src={img.image_url}
+                    alt="thumb"
+                    fill
+                    className="object-cover rounded"
+                  />
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Details */}
-
+          {/* DETAILS (UNCHANGED) */}
           <div>
             <p className="mb-2 text-sm font-medium text-text-primary">
-              {
-                product?.category
-                  ?.name
-              }
+              {product?.category?.name}
             </p>
 
-            <Text
-              variant="h2"
-              className="mb-3 text-black"
-            >
+            <Text variant="h2" className="mb-3 text-black">
               {product.name}
             </Text>
 
-            <p className="mb-2 text-gray-500">
-              Brand:
-              {product.brand}
-            </p>
-
-            <p className="mb-4 text-gray-500">
-              SKU:
-              {product.sku}
-            </p>
+            <p className="mb-2 text-gray-500">Brand: {product.brand}</p>
+            <p className="mb-4 text-gray-500">SKU: {product.sku}</p>
 
             <div className="mb-5 flex items-center gap-3">
               <span className="text-3xl font-bold text-text-primary">
-                ₹
-                {Number(
-                  product.sale_price
-                ).toLocaleString()}
+                ₹{Number(product.sale_price).toLocaleString()}
               </span>
 
               <span className="text-lg text-gray-400 line-through">
-                ₹
-                {Number(
-                  product.mrp
-                ).toLocaleString()}
+                ₹{Number(product.mrp).toLocaleString()}
               </span>
             </div>
 
             <div className="mb-6">
               <span className="rounded-full bg-orange-100 px-3 py-1 text-sm font-medium text-orange-700">
-                {
-                  product.stock_status
-                }
+                {product.stock_status}
               </span>
             </div>
 
             <p className="mb-8 leading-7 text-gray-600">
-              {
-                product.description
-              }
+              {product.description}
             </p>
-
-            {/* Buy Now Button */}
 
             <Button
               variant="primary"
               size="lg"
-              onClick={
-                handleBuyNow
-              }
-              disabled={
-                adding
-              }
+              onClick={handleBuyNow}
+              disabled={adding}
               className="w-full"
             >
-              {adding
-                ? "Processing..."
-                : "Buy Now"}
+              {adding ? "Processing..." : "Buy Now"}
             </Button>
 
-            {/* Product Information */}
-
             <div className="mt-10 rounded-2xl border bg-white p-5">
-              <Text
-                variant="h5"
-                className="mb-4 text-black"
-              >
+              <Text variant="h5" className="mb-4 text-black">
                 Product Information
               </Text>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <strong>
-                    Manufacturer:
-                  </strong>
-                  <p>
-                    {
-                      product.manufacturer
-                    }
-                  </p>
+                  <strong>Manufacturer:</strong>
+                  <p>{product.manufacturer}</p>
                 </div>
 
                 <div>
-                  <strong>
-                    HSN Code:
-                  </strong>
-                  <p>
-                    {
-                      product.hsn_code
-                    }
-                  </p>
+                  <strong>HSN Code:</strong>
+                  <p>{product.hsn_code}</p>
                 </div>
 
                 <div>
-                  <strong>
-                    Stock Qty:
-                  </strong>
-                  <p>
-                    {
-                      product.stock_qty
-                    }
-                  </p>
+                  <strong>Stock Qty:</strong>
+                  <p>{product.stock_qty}</p>
                 </div>
 
                 <div>
-                  <strong>
-                    Rating:
-                  </strong>
+                  <strong>Rating:</strong>
                   <p>
-                    {
-                      product.rating
-                    }
-                    (
-                    {
-                      product.review_count
-                    }
-                    Reviews)
+                    {product.rating} ({product.review_count} Reviews)
                   </p>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <AuthModal
-          isOpen={isAuthOpen}
-          onClose={() =>
-            setIsAuthOpen(false)
-          }
-        />
+
+        <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
       </Container>
     </section>
   );

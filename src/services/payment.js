@@ -23,9 +23,7 @@ export const createOrderService =
   };
 
 
- 
-
-export const getCartSummaryService = async () => {
+ export const getCartSummaryService = async () => {
   const response = await api.get(
     API_ENDPOINTS.CART_SUMMERY
   );

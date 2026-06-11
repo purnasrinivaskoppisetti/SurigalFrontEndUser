@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import Image from "next/image";
@@ -70,7 +68,7 @@ export default function ProductCard({ product }) {
     }
   };
 
-  // 🛒 Add Cart
+  //🛒 Add Cart
   const handleCart = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -95,6 +93,8 @@ export default function ProductCard({ product }) {
     }
   };
 
+
+  
   return (
     <>
       <div
@@ -241,3 +241,13 @@ export default function ProductCard({ product }) {
     </>
   );
 }
+
+
+
+
+
+
+
+
+
+
