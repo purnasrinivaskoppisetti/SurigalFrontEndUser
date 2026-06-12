@@ -1,388 +1,181 @@
 "use client";
 
-import { useState } from "react";
-
-import PaymentMethods from "./paymentmethod";
-import UpiPayment from "./upipayment";
-import CardPaymentForm from "./cardpaymentform";
-import NetBanking from "./netbanking";
+import { useEffect, useState } from "react";
 import PaymentSummary from "./ordersummery";
-
-import usePayment from "@/hooks/usePayment";
+import useCheckout from "@/hooks/usecheckout";
 
 export default function PaymentPageContent() {
-
-  // =========================
-  // STATES
-  // =========================
-  const [
-    selectedMethod,
-    setSelectedMethod,
-  ] = useState("cod");
-
-  const [orderId, setOrderId] =
-    useState("");
-
-  // =========================
-  // HOOK
-  // =========================
   const {
     cartItems,
-    summary,
     loading,
+    orderLoading,
     paymentLoading,
-    error,
-    success,
-
-    // PAYMENT
-    handlePaymentSuccess,
-    handleCreateOrder,
-
-    // ADDRESS
-    addresses,
     selectedAddress,
-    setSelectedAddress,
+    placeOrder,
+    handlePaymentSuccess,
+    getCartSummary,
+  } = useCheckout();
 
-  } = usePayment();
+  // ======================
+  // LOCAL STATE
+  // ======================
+  const [showModal, setShowModal] = useState(false);
+  const [summaryData, setSummaryData] = useState(null);
+  const [selectedCoupon, setSelectedCoupon] = useState(null);
 
-  // =========================
-  // CREATE ORDER
-  // =========================
-  const createOrder =
-    async (
-      paymentMethod
-    ) => {
+  // ======================
+  // BEST COUPON AUTO SELECT
+  // ======================
+  useEffect(() => {
+    if (summaryData?.available_coupons?.length) {
+      const best = [...summaryData.available_coupons].sort(
+        (a, b) => b.discount_amount - a.discount_amount
+      )[0];
 
-      try {
+      setSelectedCoupon(best);
+    }
+  }, [summaryData]);
 
-        // =========================
-        // ADDRESS VALIDATION
-        // =========================
-        if (
-          !selectedAddress?.id
-        ) {
+  // ======================
+  // LOAD SUMMARY
+  // ======================
+  const handlePlaceOrder = async () => {
+    if (!selectedAddress) {
+      alert("Please select address");
+      return;
+    }
 
-          alert(
-            "Please select address"
-          );
+    const res = await getCartSummary();
 
-          return null;
-        }
+    const summary = res?.data?.data || res?.data;
 
-        // =========================
-        // CREATE ORDER API
-        // =========================
-        const response =
-          await handleCreateOrder({
+    setSummaryData(summary);
+    setShowModal(true);
+  };
 
-            address_id:
-              selectedAddress.id,
+  // ======================
+  // PAY NOW (FIXED FLOW)
+  // ======================
+  const handlePayNow = async () => {
+    try {
+      // 1. CREATE ORDER
+      const order = await placeOrder();
 
-            payment_method:
-              paymentMethod || "cod",
-
-            coupon_code:
-              null,
-          });
-
-        console.log(
-          "FULL ORDER RESPONSE:",
-          response
-        );
-
-        // =========================
-        // GET ORDER ID
-        // =========================
-        const createdOrderId =
-
-          response?.orderId ||
-
-          response?.data?.orderId ||
-
-          response?.data?.id ||
-
-          response?.data?.order_id ||
-
-          response?.data?.data?.id ||
-
-          response?.data?.data?.order_id ||
-
-          response?.id ||
-
-          response?.order_id;
-
-        console.log(
-          "FINAL ORDER ID:",
-          createdOrderId
-        );
-
-        // =========================
-        // VALIDATION
-        // =========================
-        if (
-          !createdOrderId
-        ) {
-
-          alert(
-            "Order ID not found"
-          );
-
-          return null;
-        }
-
-        // =========================
-        // SAVE ORDER ID
-        // =========================
-        setOrderId(
-          createdOrderId
-        );
-
-        return createdOrderId;
-
-      } catch (error) {
-
-        console.log(
-          "CREATE ORDER ERROR:",
-          error
-        );
-
-        return null;
+      if (!order?.order_id) {
+        throw new Error("Order ID not found");
       }
-    };
+
+      // 2. TRANSACTION ID
+      const transactionId = `TXN-${Date.now()}`;
+
+      // 3. PAYMENT API CALL
+      await handlePaymentSuccess({
+        order_id: order.order_id,
+        transaction_id: transactionId,
+        amount:
+          selectedCoupon?.payable_amount ||
+          summaryData?.total_amount ||
+          0,
+        payment_method: "COD",
+      });
+
+      setShowModal(false);
+
+      alert("Payment Successful 🎉 Order Placed!");
+    } catch (err) {
+      console.error(err);
+      alert(err?.message || "Payment failed");
+    }
+  };
+
+  const payableAmount =
+    selectedCoupon?.payable_amount ??
+    summaryData?.total_amount ??
+    0;
 
   return (
     <div className="grid gap-8 lg:grid-cols-3">
 
-      {/* LEFT SIDE */}
-      <div className="space-y-6 lg:col-span-2">
+      {/* LEFT */}
+      <div className="lg:col-span-2 space-y-6">
 
-        {/* LOADING */}
-        {loading && (
-          <div className="rounded-3xl border bg-white p-6">
-            Loading cart...
-          </div>
-        )}
+        {loading && <p>Loading cart...</p>}
 
-        {/* ERROR */}
-        {error && (
-          <div className="rounded-3xl border border-red-200 bg-red-50 p-4 text-red-500">
-            {error}
-          </div>
-        )}
+        <div className="border p-4 rounded-xl">
+          <h2 className="font-bold text-xl mb-4">Cart Items</h2>
 
-        {/* CART ITEMS */}
-        {!loading && (
-          <div className="rounded-3xl border bg-white p-6 shadow-sm">
+          {(cartItems || []).map((item) => (
+            <div key={item.cart_id} className="flex gap-4 border-b py-3">
 
-            <h2 className="text-2xl font-bold text-black">
-              Your Cart
-            </h2>
+              <img
+                src={item.thumbnail_url}
+                className="w-20 h-20 object-cover rounded"
+              />
 
-            <div className="mt-6 space-y-5">
+              <div>
+                <p className="font-semibold">{item.name}</p>
+                <p>Qty: {item.quantity}</p>
+                <p>₹{item.sale_price}</p>
+              </div>
 
-              {cartItems?.map(
-                (item) => (
-                  <div
-                    key={
-                      item?.cart_id
-                    }
-                    className="flex items-center gap-4 border-b pb-5 last:border-b-0"
-                  >
-
-                    {/* IMAGE */}
-                    <img
-                      src={
-                        item?.thumbnail_url ||
-                        "/placeholder.png"
-                      }
-                      alt={
-                        item?.name
-                      }
-                      className="h-24 w-24 rounded-2xl border object-cover"
-                    />
-
-                    {/* DETAILS */}
-                    <div className="flex-1">
-
-                      <h3 className="text-lg font-semibold text-black">
-                        {item?.name}
-                      </h3>
-
-                      <p className="mt-1 text-sm text-gray-500">
-                        Brand:
-                        {" "}
-                        {item?.brand}
-                      </p>
-
-                      <p className="mt-1 text-sm text-gray-500">
-                        Quantity:
-                        {" "}
-                        {item?.quantity}
-                      </p>
-
-                      <p className="mt-2 text-lg font-bold text-black">
-                        ₹
-                        {Number(
-                          item?.sale_price ||
-                          0
-                        ).toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                )
-              )}
             </div>
-          </div>
-        )}
+          ))}
+        </div>
 
-        {/* =========================
-            ADDRESS SELECTION
-        ========================= */}
-        {/* <div>
+        <button
+          onClick={handlePlaceOrder}
+          disabled={orderLoading}
+          className="w-full bg-black text-white p-3 rounded-xl"
+        >
+          {orderLoading ? "Processing..." : "Place Order"}
+        </button>
 
-          <h2 className="text-2xl font-bold text-black">
-            Select Address
-          </h2>
-
-          <div className="mt-5 space-y-4">
-
-            {addresses?.length > 0 ? (
-              addresses.map(
-                (address) => (
-
-                  <button
-                    key={address?.id}
-                    type="button"
-                    onClick={() =>
-                      setSelectedAddress(
-                        address
-                      )
-                    }
-                    className={`
-                      w-full rounded-2xl border p-4 text-left transition
-                      ${
-                        selectedAddress?.id === address?.id
-                          ? "border-black bg-gray-50"
-                          : "border-gray-200"
-                      }
-                    `}
-                  >
-
-                    <p className="font-semibold text-black">
-                      {address?.full_name}
-                    </p>
-
-                    <p className="mt-1 text-sm text-gray-500">
-                      {address?.address_line_1}
-                    </p>
-
-                    <p className="mt-1 text-sm text-gray-500">
-                      {address?.city},
-                      {" "}
-                      {address?.state}
-                    </p>
-
-                    <p className="mt-1 text-sm text-gray-500">
-                      {address?.pincode}
-                    </p>
-
-                    <p className="mt-1 text-sm text-gray-500">
-                      {address?.phone}
-                    </p>
-
-                  </button>
-                )
-              )
-            ) : (
-              <p className="text-sm text-gray-500">
-                No addresses found
-              </p>
-            )}
-
-          </div>
-        </div> */}
-
-        {/* PAYMENT METHODS */}
-        <PaymentMethods
-          selected={
-            selectedMethod
-          }
-          setSelected={
-            setSelectedMethod
-          }
-        />
-
-        {/* COD */}
-        {selectedMethod ===
-          "cod" && (
-          <CardPaymentForm
-            orderId={orderId}
-            loading={
-              paymentLoading
-            }
-            error={error}
-            success={success}
-            createOrder={
-              createOrder
-            }
-            handlePaymentSuccess={
-              handlePaymentSuccess
-            }
-          />
-        )}
-
-        {/* UPI */}
-        {selectedMethod ===
-          "upi" && (
-          <UpiPayment
-            orderId={orderId}
-            loading={
-              paymentLoading
-            }
-            error={error}
-            success={success}
-            createOrder={
-              createOrder
-            }
-            handlePaymentSuccess={
-              handlePaymentSuccess
-            }
-          />
-        )}
-
-        {/* BANK */}
-        {selectedMethod ===
-          "bank" && (
-          <NetBanking
-            orderId={orderId}
-            loading={
-              paymentLoading
-            }
-            error={error}
-            success={success}
-            createOrder={
-              createOrder
-            }
-            handlePaymentSuccess={
-              handlePaymentSuccess
-            }
-          />
-        )}
       </div>
 
-      {/* RIGHT SIDE */}
+      {/* RIGHT */}
       <div>
         <PaymentSummary
-          amount={
-            summary?.subtotal ||
-            0
-          }
-          totalItems={
-            summary?.total_items ||
-            0
-          }
+          amount={payableAmount}
+          totalItems={summaryData?.total_items || 0}
         />
       </div>
+
+      {/* MODAL */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center">
+
+          <div className="bg-white p-6 rounded-xl w-[420px]">
+
+            <h2 className="text-xl font-bold mb-4">
+              Order Summary
+            </h2>
+
+            <p>Items: {summaryData?.total_items}</p>
+            <p>Subtotal: ₹{summaryData?.subtotal}</p>
+
+            <p className="text-green-600">
+              Discount: ₹{selectedCoupon?.discount_amount || 0}
+            </p>
+
+            <hr className="my-2" />
+
+            <p className="text-lg font-bold">
+              Payable: ₹{payableAmount}
+            </p>
+
+            <button
+              onClick={handlePayNow}
+              disabled={paymentLoading}
+              className="w-full mt-4 bg-green-600 text-white p-3 rounded-lg"
+            >
+              {paymentLoading ? "Processing..." : "Pay Now"}
+            </button>
+
+          </div>
+
+        </div>
+      )}
+
     </div>
   );
 }

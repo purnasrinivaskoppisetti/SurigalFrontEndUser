@@ -18,7 +18,7 @@ export const API_ENDPOINTS = {
   PAYMENT:`/api/v1/customer/orders/payment-success`,
   CREATE_ORDER:`api/v1/customer/orders`,
   CART_SUMMERY:`api/v1/customer/cart/summary`,
-  Apply_COUPON:`api/v1/customer/cart/apply-coupon`
+  APPLY_COUPON: "/api/v1/customer/cart/apply-coupon",
   
 
 };
