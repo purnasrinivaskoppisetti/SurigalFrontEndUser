@@ -38,7 +38,7 @@ export default function ProductsPage({
   useEffect(() => {
     fetchProducts({
       page: currentPage,
-      page_size: 6,
+      page_size: 12,
       category_id: categoryId,
       search: searchText, // ✅ added search
     });

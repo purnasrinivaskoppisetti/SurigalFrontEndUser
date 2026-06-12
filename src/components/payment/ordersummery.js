@@ -1,99 +1,73 @@
 "use client";
-
-import { useEffect } from "react";
+ 
 import {
   TicketPercent,
   ShoppingBag,
   Truck,
   Wallet,
 } from "lucide-react";
-
-import useCartSummary from "@/hooks/usecartsummary";
-
-export default function PaymentSummary() {
+ 
+// 🌟 Receive cartSummaryHooks as a prop from PaymentPageContent
+export default function PaymentSummary({ cartSummaryHooks }) {
   const {
     summary,
     selectedCoupon,
     loading,
     couponLoading,
-    fetchSummary,
     applyCoupon,
     removeCoupon,
-  } = useCartSummary();
-
-  useEffect(() => {
-    fetchSummary();
-  }, []);
-
+  } = cartSummaryHooks;
+ 
   if (loading || !summary) {
     return (
       <div className="sticky top-24 rounded-3xl border bg-white p-6 shadow-sm">
-        Loading...
+        Loading Summary...
       </div>
     );
   }
-
+ 
   return (
     <div className="sticky top-24 rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-
       {/* HEADER */}
       <div className="flex items-center gap-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--color-text-primary)] text-white">
           <Wallet size={22} />
         </div>
-
         <div>
-          <h2 className="text-2xl font-bold text-black">
-            Payment Summary
-          </h2>
-          <p className="text-sm text-gray-500">
-            Secure checkout overview
-          </p>
+          <h2 className="text-2xl font-bold text-black">Payment Summary</h2>
+          <p className="text-sm text-gray-500">Secure checkout overview</p>
         </div>
       </div>
-
+ 
       {/* BODY */}
       <div className="mt-8 space-y-5">
-
         {/* ITEMS */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="rounded-xl bg-gray-100 p-2">
               <ShoppingBag size={18} />
             </div>
-
             <div>
-              <p className="text-sm text-gray-500">
-                Total Items
-              </p>
-              <p className="font-semibold">
-                {summary?.total_items || 0} Items
-              </p>
+              <p className="text-sm text-gray-500">Total Items</p>
+              <p className="font-semibold">{summary?.total_items || 0} Items</p>
             </div>
           </div>
-
           <span className="font-bold">
             ₹{Number(summary?.subtotal || 0).toLocaleString()}
           </span>
         </div>
-
+ 
         {/* SHIPPING */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="rounded-xl bg-gray-100 p-2">
               <Truck size={18} />
             </div>
-
             <div>
-              <p className="text-sm text-gray-500">
-                Delivery Charges
-              </p>
-              <p className="font-semibold">
-                Shipping
-              </p>
+              <p className="text-sm text-gray-500">Delivery Charges</p>
+              <p className="font-semibold">Shipping</p>
             </div>
           </div>
-
           {summary?.shipping_charge === 0 ? (
             <span className="rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-700">
               Free
@@ -104,15 +78,14 @@ export default function PaymentSummary() {
             </span>
           )}
         </div>
-
+ 
         {/* COUPONS LIST */}
-        {summary?.available_coupons?.length > 0 && (
+        {summary?.available_coupons?.length > 0 && !selectedCoupon && (
           <div className="space-y-3">
             <h3 className="font-semibold">Available Coupons</h3>
-
             {summary.available_coupons.map((coupon) => (
               <div
-                key={coupon.coupon_id}
+                key={coupon.coupon_id || coupon.coupon_code}
                 className="flex items-center justify-between rounded-2xl border p-4"
               >
                 <div>
@@ -121,11 +94,10 @@ export default function PaymentSummary() {
                     Save ₹{coupon.discount_amount}
                   </p>
                 </div>
-
                 <button
                   onClick={() => applyCoupon(coupon.coupon_code)}
                   disabled={couponLoading}
-                  className="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white"
+                  className="rounded-xl bg-[var(--color-text-primary)] px-4 py-2 text-sm font-semibold text-white transition-all duration-300 hover:bg-[var(--color-text-primary)]"
                 >
                   {couponLoading ? "Applying..." : "Apply"}
                 </button>
@@ -133,7 +105,7 @@ export default function PaymentSummary() {
             ))}
           </div>
         )}
-
+ 
         {/* SELECTED COUPON */}
         {selectedCoupon && (
           <div className="flex items-center justify-between rounded-2xl border border-green-200 bg-green-50 p-4">
@@ -141,48 +113,40 @@ export default function PaymentSummary() {
               <div className="rounded-xl bg-green-100 p-2 text-green-700">
                 <TicketPercent size={18} />
               </div>
-
               <div>
-                <p className="text-sm text-green-700">
-                  Coupon Applied
-                </p>
+                <p className="text-sm text-green-700">Coupon Applied</p>
                 <p className="font-bold text-green-900">
                   {selectedCoupon.coupon_code}
                 </p>
               </div>
             </div>
-
             <button
               onClick={removeCoupon}
-              className="text-sm font-semibold text-red-500"
+              className="text-sm font-semibold text-red-500 hover:underline"
             >
               Remove
             </button>
           </div>
         )}
-
+ 
         {/* TOTAL */}
         <div className="border-t pt-5">
-          <div className="rounded-2xl bg-black p-5 text-white">
+          <div className="rounded-2xl bg-[var(--color-text-primary)] p-5 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-300">
-                  Final Payable
-                </p>
-
+                <p className="text-sm text-gray-300">Final Payable</p>
                 <h3 className="mt-1 text-3xl font-bold">
                   ₹{Number(summary?.total_amount || 0).toLocaleString()}
                 </h3>
               </div>
-
               <div className="rounded-2xl bg-white/10 px-4 py-2 text-sm font-medium">
                 Secure Payment
               </div>
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );
 }
+ 

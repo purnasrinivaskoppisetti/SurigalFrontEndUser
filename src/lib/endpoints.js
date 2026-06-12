@@ -19,6 +19,11 @@ export const API_ENDPOINTS = {
   CREATE_ORDER:`api/v1/customer/orders`,
   CART_SUMMERY:`api/v1/customer/cart/summary`,
   APPLY_COUPON: "/api/v1/customer/cart/apply-coupon",
-  
-
+ 
+  CREATE_RAZORPAY_PAYMENT: "/api/v1/billing/create-payment",
+  VERIFY_RAZORPAY_PAYMENT: "/api/v1/billing/verify-payment",
+ 
+ 
+ 
 };
+ 

@@ -1,10 +1,14 @@
-"use client";
 
+"use client";
+ 
 import { useEffect, useState } from "react";
+import Script from "next/script";
 import PaymentSummary from "./ordersummery";
 import useCheckout from "@/hooks/usecheckout";
-
+import useCartSummary from "@/hooks/usecartsummary"; // 🌟 Import your new hook
+ 
 export default function PaymentPageContent() {
+  // 1. Your Checkout Hook
   const {
     cartItems,
     loading,
@@ -12,170 +16,196 @@ export default function PaymentPageContent() {
     paymentLoading,
     selectedAddress,
     placeOrder,
-    handlePaymentSuccess,
-    getCartSummary,
+    initializeRazorpayPayment,
+    verifyPaymentSignature,
+    setCouponCode, // We use this to tell your backend which coupon was selected
   } = useCheckout();
-
-  // ======================
-  // LOCAL STATE
-  // ======================
+ 
+  // 2. Your New Cart Summary Hook
+  const cartSummaryHooks = useCartSummary();
+  const { summary, selectedCoupon } = cartSummaryHooks;
+ 
   const [showModal, setShowModal] = useState(false);
-  const [summaryData, setSummaryData] = useState(null);
-  const [selectedCoupon, setSelectedCoupon] = useState(null);
-
-  // ======================
-  // BEST COUPON AUTO SELECT
-  // ======================
+ 
+  // 🌟 Sync the selected coupon from your new hook to your checkout hook
+  // This ensures that when placeOrder() runs, it sends the coupon to your backend
   useEffect(() => {
-    if (summaryData?.available_coupons?.length) {
-      const best = [...summaryData.available_coupons].sort(
-        (a, b) => b.discount_amount - a.discount_amount
-      )[0];
-
-      setSelectedCoupon(best);
+    if (selectedCoupon?.coupon_code) {
+      setCouponCode(selectedCoupon.coupon_code);
+    } else {
+      setCouponCode(null);
     }
-  }, [summaryData]);
-
-  // ======================
-  // LOAD SUMMARY
-  // ======================
-  const handlePlaceOrder = async () => {
+  }, [selectedCoupon, setCouponCode]);
+ 
+  const handlePlaceOrder = () => {
     if (!selectedAddress) {
-      alert("Please select address");
+      alert("Please select an address");
       return;
     }
-
-    const res = await getCartSummary();
-
-    const summary = res?.data?.data || res?.data;
-
-    setSummaryData(summary);
+    // We don't need to manually fetch the summary here anymore
+    // because useCartSummary() already keeps it updated!
     setShowModal(true);
   };
-
-  // ======================
-  // PAY NOW (FIXED FLOW)
-  // ======================
+ 
+  // ==========================================
+  // FIXED RAZORPAY GATEWAY CHECKOUT PROCESS
+  // ==========================================
   const handlePayNow = async () => {
     try {
-      // 1. CREATE ORDER
+      // 1. Create Internal Order (Backend will use the coupon we synced above)
       const order = await placeOrder();
-
-      if (!order?.order_id) {
-        throw new Error("Order ID not found");
+      if (!order?.order_id) throw new Error("Order configuration failed. Tracking ID missing.");
+ 
+      // 2. Fetch Razorpay Config (Backend calculates final discounted amount)
+      const razorpayConfig = await initializeRazorpayPayment(order.order_id);
+      if (!razorpayConfig?.razorpay_order_id) throw new Error("Failed to initialize remote gateway.");
+ 
+      // 3. Configure Razorpay
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: razorpayConfig.amount, // 🌟 Sent perfectly from backend with discount applied
+        currency: razorpayConfig.currency || "INR",
+        name: "Surgical World",
+        description: `Order Purchase #${order.order_id.slice(0, 8)}`,
+        order_id: razorpayConfig.razorpay_order_id,
+       
+        handler: async function (response) {
+          try {
+            const verificationPayload = {
+              order_id: order.order_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            };
+ 
+            const verificationResult = await verifyPaymentSignature(verificationPayload);
+ 
+            if (verificationResult?.success) {
+              setShowModal(false);
+              alert("Payment Successful 🎉 Order Placed!");
+            } else {
+              alert(`Verification Error: ${verificationResult?.message}`);
+            }
+          } catch (err) {
+            alert("Network dropped during confirmation.");
+          }
+        },
+        prefill: {
+          name: selectedAddress?.full_name || "Customer",
+          contact: selectedAddress?.phone || "",
+        },
+        theme: { color: "#007595" },
+      };
+ 
+      if (window.Razorpay) {
+        const rzp = new window.Razorpay(options);
+        rzp.on("payment.failed", function (response) {
+          alert(`Transaction Declined: ${response.error.description}`);
+        });
+        rzp.open();
+      } else {
+        alert("Razorpay script failed to load.");
       }
-
-      // 2. TRANSACTION ID
-      const transactionId = `TXN-${Date.now()}`;
-
-      // 3. PAYMENT API CALL
-      await handlePaymentSuccess({
-        order_id: order.order_id,
-        transaction_id: transactionId,
-        amount:
-          selectedCoupon?.payable_amount ||
-          summaryData?.total_amount ||
-          0,
-        payment_method: "COD",
-      });
-
-      setShowModal(false);
-
-      alert("Payment Successful 🎉 Order Placed!");
+ 
     } catch (err) {
       console.error(err);
-      alert(err?.message || "Payment failed");
+      alert(err?.message || "Payment initialization failed");
     }
   };
-
-  const payableAmount =
-    selectedCoupon?.payable_amount ??
-    summaryData?.total_amount ??
-    0;
-
+ 
   return (
     <div className="grid gap-8 lg:grid-cols-3">
-
-      {/* LEFT */}
-      <div className="lg:col-span-2 space-y-6">
-
+      {/* LEFT: CART ITEMS */}
+      <div className="space-y-6 lg:col-span-2">
         {loading && <p>Loading cart...</p>}
-
-        <div className="border p-4 rounded-xl">
-          <h2 className="font-bold text-xl mb-4">Cart Items</h2>
-
+        <div className="rounded-xl border p-4">
+          <h2 className="mb-4 text-xl font-bold">Cart Items</h2>
           {(cartItems || []).map((item) => (
             <div key={item.cart_id} className="flex gap-4 border-b py-3">
-
-              <img
-                src={item.thumbnail_url}
-                className="w-20 h-20 object-cover rounded"
-              />
-
+              <img src={item.thumbnail_url} className="h-20 w-20 rounded object-cover" alt={item.name} />
               <div>
                 <p className="font-semibold">{item.name}</p>
-                <p>Qty: {item.quantity}</p>
-                <p>₹{item.sale_price}</p>
+                <p className="text-gray-600">Qty: {item.quantity}</p>
+                <p className="font-medium">₹{item.sale_price}</p>
               </div>
-
             </div>
           ))}
         </div>
-
+ 
         <button
           onClick={handlePlaceOrder}
           disabled={orderLoading}
-          className="w-full bg-black text-white p-3 rounded-xl"
+          className="w-full rounded-xl bg-[var(--color-text-primary)] p-3 text-white transition-colors disabled:opacity-50"
         >
           {orderLoading ? "Processing..." : "Place Order"}
         </button>
-
       </div>
-
-      {/* RIGHT */}
+ 
+      {/* RIGHT: PAYMENT SUMMARY */}
       <div>
-        <PaymentSummary
-          amount={payableAmount}
-          totalItems={summaryData?.total_items || 0}
-        />
+        {/* 🌟 Pass the entire hook object down as props so they share the exact same state */}
+        <PaymentSummary cartSummaryHooks={cartSummaryHooks} />
       </div>
-
-      {/* MODAL */}
+ 
+      {/* MODAL: FINAL POPUP SUMMARY */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center">
-
-          <div className="bg-white p-6 rounded-xl w-[420px]">
-
-            <h2 className="text-xl font-bold mb-4">
-              Order Summary
-            </h2>
-
-            <p>Items: {summaryData?.total_items}</p>
-            <p>Subtotal: ₹{summaryData?.subtotal}</p>
-
-            <p className="text-green-600">
-              Discount: ₹{selectedCoupon?.discount_amount || 0}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="w-[420px] rounded-xl bg-white p-6">
+            <h2 className="mb-6 text-xl font-bold text-center">Final Order Summary</h2>
+           
+            <div className="space-y-2 text-gray-700 mb-4">
+              <p className="flex justify-between">
+                <span>Total Items:</span>
+                <span className="font-semibold">{summary?.total_items || 0}</span>
+              </p>
+              <p className="flex justify-between">
+                <span>Subtotal:</span>
+                <span className="font-semibold">₹{Number(summary?.subtotal || 0).toLocaleString()}</span>
+              </p>
+              <p className="flex justify-between">
+                <span>Delivery:</span>
+                <span className="font-semibold text-green-600">
+                  {summary?.shipping_charge === 0 ? "Free" : `₹${summary?.shipping_charge || 0}`}
+                </span>
+              </p>
+             
+              {/* Only show this line if a coupon is actually applied */}
+              {selectedCoupon && (
+                <p className="flex justify-between text-green-600 font-medium bg-green-50 p-2 rounded">
+                  <span>Discount ({selectedCoupon.coupon_code}):</span>
+                  <span>-₹{summary?.discount_amount || 0}</span>
+                </p>
+              )}
+            </div>
+ 
+            <hr className="my-4" />
+           
+            <p className="flex justify-between text-2xl font-bold text-black mb-6">
+              <span>Payable:</span>
+              <span>₹{Number(summary?.total_amount || 0).toLocaleString()}</span>
             </p>
-
-            <hr className="my-2" />
-
-            <p className="text-lg font-bold">
-              Payable: ₹{payableAmount}
-            </p>
-
-            <button
-              onClick={handlePayNow}
-              disabled={paymentLoading}
-              className="w-full mt-4 bg-green-600 text-white p-3 rounded-lg"
-            >
-              {paymentLoading ? "Processing..." : "Pay Now"}
-            </button>
-
+ 
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={() => setShowModal(false)}
+                className="w-1/3 rounded-lg bg-gray-200 p-3 font-medium text-black transition hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePayNow}
+                disabled={paymentLoading}
+                className="w-2/3 rounded-lg bg-[var(--color-text-primary)] p-3 font-bold text-white transition hover:bg-green-700 disabled:opacity-50"
+              >
+                {paymentLoading ? "Connecting Gateway..." : "Pay Now"}
+              </button>
+            </div>
           </div>
-
         </div>
       )}
-
+ 
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
     </div>
   );
 }
+ 
