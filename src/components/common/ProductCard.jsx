@@ -22,6 +22,8 @@ import useCart from "@/hooks/useCart";
 export default function ProductCard({ product }) {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [addingCart, setAddingCart] = useState(false);
+  const [addedToCart, setAddedToCart] =
+    useState(false);
 
   const { addCart } = useCart();
 
@@ -68,7 +70,7 @@ export default function ProductCard({ product }) {
     }
   };
 
-  //🛒 Add Cart
+  // 🛒 Add Cart
   const handleCart = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -78,12 +80,15 @@ export default function ProductCard({ product }) {
       return;
     }
 
-    if (addingCart) return;
+    // Prevent multiple clicks
+    if (addingCart || addedToCart) return;
 
     try {
       setAddingCart(true);
 
       await addCart(id, 1);
+
+      setAddedToCart(true);
 
       console.log("Added to cart");
     } catch (error) {
@@ -93,8 +98,6 @@ export default function ProductCard({ product }) {
     }
   };
 
-
-  
   return (
     <>
       <div
@@ -201,32 +204,46 @@ export default function ProductCard({ product }) {
 
           {/* 📦 Stock */}
           <p className="mt-1 text-xs text-gray-500">
-            {product?.stock_status} •{" "}
-            {product?.stock_qty} left
+            {product?.stock_qty === 0
+              ? "Out of Stock"
+              : `${product?.stock_status} • ${product?.stock_qty} left`}
           </p>
 
           {/* 🛒 Actions */}
           <div className="mt-4 flex gap-2">
             <button
               onClick={handleCart}
-              disabled={addingCart}
-              className="
+              disabled={
+                addingCart ||
+                addedToCart ||
+                product?.stock_qty === 0
+              }
+              className={`
                 flex flex-1 items-center justify-center gap-2
                 rounded-lg
-                bg-[var(--color-text-primary)]
                 px-3 py-2.5
                 text-sm font-medium text-white
                 transition-all duration-200
-                hover:opacity-90
                 active:scale-95
                 disabled:cursor-not-allowed
                 disabled:opacity-70
-              "
+                ${
+                  product?.stock_qty === 0
+                    ? "bg-gray-400"
+                    : addedToCart
+                    ? "bg-[var(--color-text-primary)]"
+                    : "bg-[var(--color-text-primary)] hover:opacity-90"
+                }
+              `}
             >
               <ShoppingCart size={16} />
 
-              {addingCart
+              {product?.stock_qty === 0
+                ? "Out of Stock"
+                : addingCart
                 ? "Adding..."
+                : addedToCart
+                ? "Added to Cart"
                 : "Add to Cart"}
             </button>
           </div>
@@ -241,13 +258,3 @@ export default function ProductCard({ product }) {
     </>
   );
 }
-
-
-
-
-
-
-
-
-
-

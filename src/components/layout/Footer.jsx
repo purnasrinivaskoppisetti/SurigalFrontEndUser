@@ -21,8 +21,8 @@ import { Container, Text } from "@/components";
 
 const QUICK_LINKS = [
   { label: "Home", href: "/" },
-  { label: "Shop", href: "/shop" },
-  { label: "Categories", href: "/categories" },
+  { label: "Products", href: "/products" },
+ 
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
  
