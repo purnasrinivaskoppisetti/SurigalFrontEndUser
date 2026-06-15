@@ -22,10 +22,9 @@ import { Container, Text } from "@/components";
 const QUICK_LINKS = [
   { label: "Home", href: "/" },
   { label: "Products", href: "/products" },
- 
+
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
- 
 ];
 
 const CATEGORIES = [
@@ -207,14 +206,14 @@ export default function Footer() {
                     variant="body"
                     className="text-white/70"
                   >
-                    +91 98765 43210
+                    +91 9885161899
                   </Text>
 
                   <Text
                     variant="body"
                     className="text-white/70"
                   >
-                    +91 87654 32109
+                    +91 9849845670
                   </Text>
                 </div>
               </div>
@@ -234,7 +233,7 @@ export default function Footer() {
                   variant="body"
                   className="text-white/70"
                 >
-                  info@surgicalworld.in
+                  surgicalworldgnt@gmail.com
                 </Text>
               </div>
 
@@ -249,13 +248,16 @@ export default function Footer() {
                   "
                 />
 
-                <Text
-                  variant="body"
-                  className="text-white/70 leading-6"
+                <a
+                  href="https://maps.app.goo.gl/sfbgvP1A6bQHvWFa8?g_st=aw"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/70 leading-6 hover:text-white transition"
                 >
-                  Old Club Road, Kothapeta,
-                  Guntur, AP 522001
-                </Text>
+                  Old Club Rd, opp. Karumuri Hospitals,
+                  Gunturvari Thota, Kothapeta,
+                  Guntur, Andhra Pradesh 522001
+                </a>
               </div>
             </div>
           </div>

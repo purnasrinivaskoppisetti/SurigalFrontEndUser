@@ -1,13 +1,22 @@
+
 "use client";
 import Container from "@/components/ui/Container";
 import Text from "@/components/ui/Text";
 import { Phone, Star, Award, Truck } from "lucide-react";
 import { useRouter } from "next/navigation";
+
 export default function HeroSection() {
-  const router=useRouter();
-  const handlechange=()=>{
-    router.push("/products")
-  }
+  const router = useRouter();
+
+  const handlechange = () => {
+    router.push("/products");
+  };
+
+  // 📞 Call Function
+  const handleCall = () => {
+    window.location.href = "tel:+919390072900";
+  };
+
   return (
     <section className="py-12 lg:py-20">
       <Container>
@@ -19,6 +28,7 @@ export default function HeroSection() {
                 India's Trusted Medical Store
               </span>
             </div>
+
             <Text
               as="h1"
               variant="display"
@@ -52,20 +62,26 @@ export default function HeroSection() {
                 </div>
               ))}
             </div>
+
             {/* CTA */}
             <div className="flex flex-wrap gap-4 mt-8">
-              <button onClick={handlechange}
-
-              className="bg-text-primary text-white px-8 py-4 rounded-xl font-semibold hover:opacity-90 transition">
+              <button
+                onClick={handlechange}
+                className="bg-text-primary text-white px-8 py-4 rounded-xl font-semibold hover:opacity-90 transition"
+              >
                 Shop Now →
-                
               </button>
 
-              <button className="border border-accent text-accent px-8 py-4 rounded-xl font-semibold flex items-center gap-2 hover:bg-accent hover:text-white transition">
+              {/* Call Button */}
+              <button
+                onClick={handleCall}
+                className="border border-accent text-accent px-8 py-4 rounded-xl font-semibold flex items-center gap-2 hover:bg-accent hover:text-white transition"
+              >
                 <Phone size={18} />
                 Call Now
               </button>
             </div>
+
             {/* Rating */}
             <div className="flex items-center gap-3 mt-8">
               <div className="flex text-gold">
@@ -134,7 +150,10 @@ export default function HeroSection() {
 
             {/* Floating Call Button */}
             <div className="fixed bottom-6 right-6 z-50">
-              <button className="bg-accent text-white px-6 py-4 rounded-full shadow-xl flex items-center gap-2 font-semibold">
+              <button
+                onClick={handleCall}
+                className="bg-accent text-white px-6 py-4 rounded-full shadow-xl flex items-center gap-2 font-semibold"
+              >
                 <Phone size={20} />
                 Call Now
               </button>
