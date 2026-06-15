@@ -1,64 +1,63 @@
 "use client";
-
+ 
 import Image from "next/image";
 import Link from "next/link";
-
+ 
 import {
   Heart,
   ShoppingCart,
   Star,
 } from "lucide-react";
-
+ 
 import {
   useEffect,
   useState,
 } from "react";
-
+ 
 import { AuthModal } from "@/components";
-
+ 
 import useWishlist from "@/hooks/useWishlist";
 import useCart from "@/hooks/useCart";
-
+ 
 export default function ProductCard({ product }) {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [addingCart, setAddingCart] = useState(false);
-  const [addedToCart, setAddedToCart] =
-    useState(false);
-
+  const [addedToCart, setAddedToCart] = useState(false);
+ 
   const { addCart } = useCart();
-
+ 
   const {
     addToWishlist,
     removeFromWishlist,
     isWishlisted,
     fetchWishlist,
   } = useWishlist();
-
-  // Replace with actual auth later
+ 
+  // Replace with actual auth later if needed for wishlist
   const user = true;
-
+ 
   const id = product?.id;
-
+ 
   const imageUrl =
     product?.thumbnail_url ||
     product?.images?.[0]?.image_url ||
     "/images/product-placeholder.png";
-
+ 
   // ✅ Fetch wishlist on mount
   useEffect(() => {
     fetchWishlist();
-  }, []);
-
-  // ❤️ Wishlist Handler
+  }, [fetchWishlist]);
+ 
+  // ❤️ Wishlist Handler (Keep auth check here, wishlist requires login)
   const handleWishlist = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-
+ 
     if (!user) {
       setIsAuthOpen(true);
       return;
     }
-
+ 
     try {
       if (isWishlisted(id)) {
         await removeFromWishlist(id);
@@ -69,27 +68,25 @@ export default function ProductCard({ product }) {
       console.log(error);
     }
   };
-
+ 
   // 🛒 Add Cart
   const handleCart = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-
-    if (!user) {
-      setIsAuthOpen(true);
-      return;
-    }
-
+ 
+    // REMOVED: if (!user) setIsAuthOpen(true); -> Let guests add to cart!
+ 
     // Prevent multiple clicks
     if (addingCart || addedToCart) return;
-
+ 
     try {
       setAddingCart(true);
-
-      await addCart(id, 1);
-
+ 
+      // ✅ FIXED: Pass the full product object as the third argument!
+      await addCart(id, 1, product);
+ 
       setAddedToCart(true);
-
+ 
       console.log("Added to cart");
     } catch (error) {
       console.log(error);
@@ -97,7 +94,7 @@ export default function ProductCard({ product }) {
       setAddingCart(false);
     }
   };
-
+ 
   return (
     <>
       <div
@@ -128,7 +125,7 @@ export default function ProductCard({ product }) {
                 group-hover:scale-105
               "
             />
-
+ 
             {/* ❤️ Wishlist */}
             <button
               onClick={handleWishlist}
@@ -157,7 +154,7 @@ export default function ProductCard({ product }) {
             </button>
           </div>
         </Link>
-
+ 
         {/* CONTENT */}
         <div className="flex flex-1 flex-col p-3 sm:p-4">
           {/* PRODUCT NAME */}
@@ -175,40 +172,40 @@ export default function ProductCard({ product }) {
               {product?.name}
             </h3>
           </Link>
-
+ 
           {/* ⭐ Rating */}
           <div className="mt-2 flex items-center gap-1 text-xs text-gray-600 sm:text-sm">
             <Star
               size={13}
               className="fill-yellow-400 text-yellow-400"
             />
-
+ 
             <span>
               {product?.rating || 0} (
               {product?.review_count || 0})
             </span>
           </div>
-
+ 
           {/* 💰 Price */}
           <div className="mt-2 flex items-center gap-2">
             <span className="text-lg font-bold text-green-600">
               ₹{product?.sale_price}
             </span>
-
+ 
             {product?.mrp && (
               <span className="text-sm text-gray-400 line-through">
                 ₹{product?.mrp}
               </span>
             )}
           </div>
-
+ 
           {/* 📦 Stock */}
           <p className="mt-1 text-xs text-gray-500">
             {product?.stock_qty === 0
               ? "Out of Stock"
               : `${product?.stock_status} • ${product?.stock_qty} left`}
           </p>
-
+ 
           {/* 🛒 Actions */}
           <div className="mt-4 flex gap-2">
             <button
@@ -237,7 +234,7 @@ export default function ProductCard({ product }) {
               `}
             >
               <ShoppingCart size={16} />
-
+ 
               {product?.stock_qty === 0
                 ? "Out of Stock"
                 : addingCart
@@ -249,7 +246,7 @@ export default function ProductCard({ product }) {
           </div>
         </div>
       </div>
-
+ 
       {/* AUTH MODAL */}
       <AuthModal
         isOpen={isAuthOpen}
