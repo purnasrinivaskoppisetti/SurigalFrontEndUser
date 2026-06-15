@@ -1,7 +1,6 @@
-
 "use client";
  
-import { useState } from "react";
+import { useState, useCallback } from "react";
  
 import {
   getWishlistService,
@@ -14,8 +13,8 @@ export default function useWishlist() {
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState(null);
  
-  // ✅ GET WISHLIST
-  const fetchWishlist = async () => {
+  // ✅ Wrapped in useCallback to stop infinite loops in useEffects
+  const fetchWishlist = useCallback(async () => {
     try {
       setLoading(true);
  
@@ -30,60 +29,55 @@ export default function useWishlist() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []); // Empty array ensures the function reference never changes
  
   // ✅ ADD WISHLIST (store only objects safely)
   const addToWishlist = async (productId) => {
-  try {
-    const res = await addWishlistService(productId);
+    try {
+      const res = await addWishlistService(productId);
  
-    if (res.success) {
-      setWishlist((prev) => {
-        const exists = prev.some(
-          (item) => item?.product_id === productId
-        );
+      if (res.success) {
+        setWishlist((prev) => {
+          const exists = prev.some(
+            (item) => item?.product_id === productId
+          );
  
-        if (exists) return prev;
+          if (exists) return prev;
  
-        return [
-          ...prev,
-          res.data || { product_id: productId },
-        ];
-      });
+          return [
+            ...prev,
+            res.data || { product_id: productId },
+          ];
+        });
  
-      // ADD THIS
-      window.dispatchEvent(
-        new Event("wishlistUpdated")
-      );
+        // Trigger global update
+        window.dispatchEvent(new Event("wishlistUpdated"));
+      }
+    } catch (error) {
+      console.log("Add wishlist error:", error);
     }
-  } catch (error) {
-    console.log("Add wishlist error:", error);
-  }
-};
+  };
  
   // ✅ REMOVE WISHLIST (SAFE)
- const removeFromWishlist = async (productId) => {
-  try {
-    const res = await removeWishlistService(productId);
+  const removeFromWishlist = async (productId) => {
+    try {
+      const res = await removeWishlistService(productId);
  
-    if (res.success) {
-      setWishlist((prev) =>
-        prev.filter(
-          (item) =>
-            item &&
-            item.product_id !== productId
-        )
-      );
+      if (res.success) {
+        setWishlist((prev) =>
+          prev.filter(
+            (item) =>
+              item && item.product_id !== productId
+          )
+        );
  
-      // ADD THIS
-      window.dispatchEvent(
-        new Event("wishlistUpdated")
-      );
+        // Trigger global update
+        window.dispatchEvent(new Event("wishlistUpdated"));
+      }
+    } catch (error) {
+      console.log("Remove wishlist error:", error);
     }
-  } catch (error) {
-    console.log("Remove wishlist error:", error);
-  }
-};
+  };
  
   // ✅ SAFE CHECK (NO CRASH EVER)
   const isWishlisted = (productId) => {
