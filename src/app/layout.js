@@ -1,8 +1,18 @@
+
+
+// import { Suspense } from "react";
 // import { Noto_Sans } from "next/font/google";
 // import "./globals.css";
 
-// import { Header, Footer,AuthInitializer } from "@/components";
+// import {
+//   AuthInitializer,
+//   Header,
+//   Footer,
+// } from "@/components";
+
+// import AuthHandler from "@/components/common/Authhandler";
 // import ReduxProvider from "@/providers/ReduxProvider";
+
 // const notoSans = Noto_Sans({
 //   subsets: ["latin"],
 //   display: "swap",
@@ -11,10 +21,13 @@
 
 // export const metadata = {
 //   title: "Surgical World",
-//   description: "Trusted Medical Equipment Store",
+//   description:
+//     "Trusted Medical Equipment Store",
 // };
 
-// export default function RootLayout({ children }) {
+// export default function RootLayout({
+//   children,
+// }) {
 //   return (
 //     <html
 //       lang="en"
@@ -23,20 +36,24 @@
 //       <body className="min-h-full flex flex-col font-sans">
 //         <ReduxProvider>
 //           <AuthInitializer />
-//           <Header />
 
-//           <main className="flex-1">
+//           <Suspense fallback={null}>
+//             <AuthHandler>
+//               <Header />
 
-//             {children}
+//               <main className="flex-1">
+//                 {children}
+//               </main>
 
-//           </main>
-
-//           <Footer />
+//               <Footer />
+//             </AuthHandler>
+//           </Suspense>
 //         </ReduxProvider>
 //       </body>
 //     </html>
 //   );
 // }
+
 
 
 
