@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import {
   Phone,
   Mail,
@@ -12,6 +14,112 @@ import {
 } from "@/components";
 
 export default function ContactPage() {
+  // =========================
+  // FORM STATE
+  // =========================
+
+  const [formData, setFormData] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    subject: "General Enquiry",
+    message: "",
+  });
+
+  const [errors, setErrors] = useState({});
+
+  // =========================
+  // HANDLE CHANGE
+  // =========================
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
+  };
+
+  // =========================
+  // VALIDATION
+  // =========================
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Name
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
+    }
+
+    // Phone
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (!/^[0-9]{10}$/.test(formData.phone)) {
+      newErrors.phone =
+        "Enter a valid 10 digit phone number";
+    }
+
+    // Email
+    if (
+      formData.email &&
+      !/^\S+@\S+\.\S+$/.test(formData.email)
+    ) {
+      newErrors.email =
+        "Enter a valid email address";
+    }
+
+    // Message
+    if (!formData.message.trim()) {
+      newErrors.message = "Message is required";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // =========================
+  // SUBMIT
+  // =========================
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    console.log("FORM DATA:", formData);
+
+    alert("Message Sent Successfully!");
+
+    // Reset Form
+    setFormData({
+      name: "",
+      phone: "",
+      email: "",
+      subject: "General Enquiry",
+      message: "",
+    });
+  };
+
+  // =========================
+  // CALL FUNCTION
+  // =========================
+
+  const handleCallPrimary = () => {
+    window.location.href = "tel:+919885161899";
+  };
+
+  const handleCallSecondary = () => {
+    window.location.href = "tel:+919849845670";
+  };
+
   return (
     <section className="py-12 md:py-12">
       <Container>
@@ -40,8 +148,12 @@ export default function ContactPage() {
               Send Us a Message
             </Text>
 
-            <form className="space-y-4">
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-4"
+            >
               <div className="grid gap-4 md:grid-cols-2">
+                {/* Name */}
                 <div>
                   <label className="mb-2 block text-sm font-medium text-black">
                     Name *
@@ -49,10 +161,20 @@ export default function ContactPage() {
 
                   <input
                     type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
                     className="h-11 w-full rounded-lg border px-4 outline-none focus:border-[var(--color-text-primary)]"
                   />
+
+                  {errors.name && (
+                    <p className="mt-1 text-sm text-red-500">
+                      {errors.name}
+                    </p>
+                  )}
                 </div>
 
+                {/* Phone */}
                 <div>
                   <label className="mb-2 block text-sm font-medium text-black">
                     Phone *
@@ -60,11 +182,21 @@ export default function ContactPage() {
 
                   <input
                     type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
                     className="h-11 w-full rounded-lg border px-4 outline-none focus:border-[var(--color-text-primary)]"
                   />
+
+                  {errors.phone && (
+                    <p className="mt-1 text-sm text-red-500">
+                      {errors.phone}
+                    </p>
+                  )}
                 </div>
               </div>
 
+              {/* Email */}
               <div>
                 <label className="mb-2 block text-sm font-medium text-black">
                   Email
@@ -72,16 +204,31 @@ export default function ContactPage() {
 
                 <input
                   type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
                   className="h-11 w-full rounded-lg border px-4 outline-none focus:border-[var(--color-text-primary)]"
                 />
+
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.email}
+                  </p>
+                )}
               </div>
 
+              {/* Subject */}
               <div>
                 <label className="mb-2 block text-sm font-medium text-black">
                   Subject
                 </label>
 
-                <select className="h-11 w-full rounded-lg border px-4 outline-none focus:border-[var(--color-text-primary)]">
+                <select
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  className="h-11 w-full rounded-lg border px-4 outline-none focus:border-[var(--color-text-primary)]"
+                >
                   <option>
                     General Enquiry
                   </option>
@@ -96,6 +243,7 @@ export default function ContactPage() {
                 </select>
               </div>
 
+              {/* Message */}
               <div>
                 <label className="mb-2 block text-sm font-medium text-black">
                   Message *
@@ -103,10 +251,20 @@ export default function ContactPage() {
 
                 <textarea
                   rows={5}
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
                   className="w-full rounded-lg border p-4 outline-none focus:border-[var(--color-text-primary)]"
                 />
+
+                {errors.message && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.message}
+                  </p>
+                )}
               </div>
 
+              {/* Submit */}
               <button
                 type="submit"
                 className="h-11 w-full rounded-lg bg-[var(--color-accent)] font-medium text-white transition hover:opacity-90"
@@ -118,6 +276,7 @@ export default function ContactPage() {
 
           {/* Contact Info */}
           <div className="space-y-4">
+            {/* Phone */}
             <div className="rounded-2xl border bg-white p-5 shadow-sm">
               <div className="flex gap-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50">
@@ -135,17 +294,24 @@ export default function ContactPage() {
                     Call Us
                   </Text>
 
-                  <Text
-                    variant="bodySmall"
+                  <button
+                    onClick={handleCallPrimary}
+                    className="block text-left text-sm text-gray-600 hover:text-[var(--color-text-primary)]"
                   >
-                    +91 98765 43210
-                    <br />
-                    +91 87654 32109
-                  </Text>
+                    +91 9885161899
+                  </button>
+
+                  <button
+                    onClick={handleCallSecondary}
+                    className="block text-left text-sm text-gray-600 hover:text-[var(--color-text-primary)]"
+                  >
+                    +91 9849845670
+                  </button>
                 </div>
               </div>
             </div>
 
+            {/* Email */}
             <div className="rounded-2xl border bg-white p-5 shadow-sm">
               <div className="flex gap-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50">
@@ -163,15 +329,17 @@ export default function ContactPage() {
                     Email
                   </Text>
 
-                  <Text
-                    variant="bodySmall"
+                  <a
+                    href="mailto:surgicalworldgnt@gmail.com"
+                    className="text-sm text-gray-600 hover:text-[var(--color-text-primary)]"
                   >
-                    info@surgicalworld.in
-                  </Text>
+                    surgicalworldgnt@gmail.com
+                  </a>
                 </div>
               </div>
             </div>
 
+            {/* Address */}
             <div className="rounded-2xl border bg-white p-5 shadow-sm">
               <div className="flex gap-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50">
@@ -189,15 +357,16 @@ export default function ContactPage() {
                     Visit Us
                   </Text>
 
-                  <Text
-                    variant="bodySmall"
+                  <a
+                    href="https://maps.app.goo.gl/sfbgvP1A6bQHvWFa8?g_st=aw"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-gray-600 hover:text-[var(--color-text-primary)] leading-6"
                   >
-                    Old Club Road,
-                    Kothapeta,
-                    Guntur,
-                    Andhra Pradesh
-                    522001
-                  </Text>
+                    Old Club Rd, opp. Karumuri Hospitals,
+                    Gunturvari Thota, Kothapeta,
+                    Guntur, Andhra Pradesh 522001
+                  </a>
                 </div>
               </div>
             </div>
@@ -206,7 +375,7 @@ export default function ContactPage() {
             <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
               <iframe
                 title="Surgical World Location"
-                src="https://maps.google.com/maps?q=Guntur&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                src="https://maps.google.com/maps?q=Old%20Club%20Rd%20Guntur&t=&z=15&ie=UTF8&iwloc=&output=embed"
                 width="100%"
                 height="320"
                 loading="lazy"

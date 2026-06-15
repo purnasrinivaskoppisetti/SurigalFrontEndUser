@@ -6,6 +6,8 @@ import {
   Zap,
   MapPin,
   Stethoscope,
+  Phone,
+  Mail,
 } from "lucide-react";
 
 import Container from "@/components/ui/Container";
@@ -59,11 +61,20 @@ const locations = [
 ];
 
 export default function AboutPage() {
-  const router=useRouter();
-  const handlechange=()=>{
-    router.push("/products")
+  const router = useRouter();
 
-}
+  const handlechange = () => {
+    router.push("/products");
+  };
+
+  // 📞 CALL FUNCTIONS
+  const handlePrimaryCall = () => {
+    window.location.href = "tel:+919885161899";
+  };
+
+  const handleSecondaryCall = () => {
+    window.location.href = "tel:+919849845670";
+  };
 
   return (
     <div>
@@ -87,8 +98,7 @@ export default function AboutPage() {
           <Button
             variant="success"
             className="mt-6"
-             onClick={handlechange}
-            
+            onClick={handlechange}
           >
             Explore Our Products →
           </Button>
@@ -141,6 +151,69 @@ export default function AboutPage() {
                 quality checked before reaching
                 our customers.
               </Text>
+
+              {/* Contact Info */}
+              <div className="mt-6 space-y-3">
+                <div className="flex items-center gap-3">
+                  <Phone
+                    size={18}
+                    className="text-[var(--color-text-primary)]"
+                  />
+
+                  <button
+                    onClick={handlePrimaryCall}
+                    className="text-left text-gray-700 hover:text-[var(--color-text-primary)]"
+                  >
+                    +91 9885161899
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Phone
+                    size={18}
+                    className="text-[var(--color-text-primary)]"
+                  />
+
+                  <button
+                    onClick={handleSecondaryCall}
+                    className="text-left text-gray-700 hover:text-[var(--color-text-primary)]"
+                  >
+                    +91 9849845670
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Mail
+                    size={18}
+                    className="text-[var(--color-text-primary)]"
+                  />
+
+                  <a
+                    href="mailto:surgicalworldgnt@gmail.com"
+                    className="text-gray-700 hover:text-[var(--color-text-primary)]"
+                  >
+                    surgicalworldgnt@gmail.com
+                  </a>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <MapPin
+                    size={18}
+                    className="mt-1 text-[var(--color-text-primary)]"
+                  />
+
+                  <a
+                    href="https://maps.app.goo.gl/sfbgvP1A6bQHvWFa8?g_st=aw"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-700 leading-6 hover:text-[var(--color-text-primary)]"
+                  >
+                    Old Club Rd, opp. Karumuri Hospitals,
+                    Gunturvari Thota, Kothapeta,
+                    Guntur, Andhra Pradesh 522001
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </Container>
@@ -256,7 +329,7 @@ export default function AboutPage() {
           <div className="overflow-hidden rounded-2xl border bg-white">
             <iframe
               title="Surgical World"
-              src="https://maps.google.com/maps?q=guntur&t=&z=13&ie=UTF8&iwloc=&output=embed"
+              src="https://maps.google.com/maps?q=Old%20Club%20Rd%20Guntur&t=&z=15&ie=UTF8&iwloc=&output=embed"
               className="h-[400px] w-full"
               loading="lazy"
             />
