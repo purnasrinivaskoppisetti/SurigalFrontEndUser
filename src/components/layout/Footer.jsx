@@ -241,7 +241,7 @@ export default function Footer() {
 
               <div className="flex gap-3">
                 <IoLocationOutline
-                  size={18}
+                  size={48}
                   className="
                     mt-1
                     text-[var(--color-text-primary)]

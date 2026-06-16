@@ -155,25 +155,7 @@ export default function HeroSection() {
               "
             >
               {/* Free Delivery */}
-              <div
-                className="
-                  absolute
-                  right-0
-                  top-0
-                  z-10
-                  bg-accent
-                  text-white
-                  px-5
-                  py-3
-                  rounded-bl-2xl
-                  flex
-                  items-center
-                  gap-2
-                "
-              >
-                <Truck size={18} />
-                Free Delivery
-              </div>
+              
 
               {/* IMAGE */}
               <div className="relative h-[500px] w-full">
@@ -187,36 +169,11 @@ export default function HeroSection() {
               </div>
 
               {/* Bottom Badge */}
-              <div
-                className="
-                  absolute
-                  left-0
-                  bottom-0
-                  bg-white
-                  px-5
-                  py-3
-                  rounded-tr-2xl
-                  shadow-sm
-                  flex
-                  items-center
-                  gap-3
-                "
-              >
-                <Award
-                  className="text-yellowish"
-                  size={22}
-                />
+             
+                
 
-                <div>
-                  <p className="text-sm text-paragraph">
-                    25 Years Anniversary
-                  </p>
-
-                  <p className="font-bold text-black">
-                    Est. 1999
-                  </p>
-                </div>
-              </div>
+               
+             
             </div>
 
             {/* Floating Call Button */}
