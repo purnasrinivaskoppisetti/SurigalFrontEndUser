@@ -9,6 +9,7 @@ import {
   Phone,
   Mail,
 } from "lucide-react";
+import Image from "next/image";
 
 import Container from "@/components/ui/Container";
 import Text from "@/components/ui/Text";
@@ -110,12 +111,15 @@ export default function AboutPage() {
       <section className="py-16">
         <Container>
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
-            <div className="flex aspect-square items-center justify-center rounded-3xl bg-blue-50">
-              <Stethoscope
-                size={120}
-                className="text-[var(--color-text-primary)]"
-              />
-            </div>
+            <div className="relative h-[320px] overflow-hidden rounded-3xl md:h-[400px]">
+  <Image
+    src="/aboutimage.png"
+    alt="Medical Equipment"
+    fill
+    priority
+    className="object-cover"
+  />
+</div>
 
             <div>
               <Text
