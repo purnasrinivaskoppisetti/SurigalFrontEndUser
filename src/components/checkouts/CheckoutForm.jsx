@@ -1,10 +1,8 @@
-
-
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
+import { useEffect } from "react";
 import CheckoutInput from "./CheckoutInput";
 import Text from "@/components/ui/Text";
 
@@ -197,7 +195,27 @@ export default function CheckoutForm() {
       resetForm();
       setValidationErrors({});
     }
-  };
+
+   
+  }
+   useEffect(() => {
+      if (
+        addresses?.length === 1 &&
+        !selectedAddress
+      ) {
+        setSelectedAddress(addresses[0]);
+
+        localStorage.setItem(
+          "selected_address",
+          JSON.stringify(addresses[0])
+        );
+      }
+    }, [
+      addresses,
+      selectedAddress,
+      setSelectedAddress,
+    ]);
+  
 
   return (
     <div className="rounded-2xl bg-white p-6 shadow-sm">
@@ -256,11 +274,10 @@ export default function CheckoutForm() {
                       )
                     );
                   }}
-                  className={`cursor-pointer rounded-xl border p-4 transition ${
-                    isSelected
+                  className={`cursor-pointer rounded-xl border p-4 transition ${isSelected
                       ? "border-green-500 bg-green-50"
                       : "border-gray-200"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
@@ -335,17 +352,17 @@ export default function CheckoutForm() {
             })}
           </div>
 
-          {selectedAddress && (
-            <button
-              type="button"
-              onClick={
-                handleContinuePayment
-              }
-              className="mt-6 h-12 w-full rounded-lg bg-green-500 text-sm font-semibold text-white hover:bg-green-600"
-            >
-              Continue To Payment →
-            </button>
-          )}
+          {(selectedAddress ||
+            addresses?.length === 1) && (
+              <button
+                type="button"
+                onClick={handleContinuePayment}
+                className="mt-6 h-12 w-full rounded-lg bg-green-500 text-sm font-semibold text-white hover:bg-green-600"
+              >
+                Continue To Payment →
+              </button>
+
+            )}
         </div>
       )}
 
@@ -375,22 +392,22 @@ export default function CheckoutForm() {
 
               {addresses?.length >
                 0 && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowForm(
-                      false
-                    );
-                    resetForm();
-                    setValidationErrors(
-                      {}
-                    );
-                  }}
-                  className="text-sm font-medium text-red-500"
-                >
-                  Cancel
-                </button>
-              )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowForm(
+                        false
+                      );
+                      resetForm();
+                      setValidationErrors(
+                        {}
+                      );
+                    }}
+                    className="text-sm font-medium text-red-500"
+                  >
+                    Cancel
+                  </button>
+                )}
             </div>
 
             <div className="grid gap-5 md:grid-cols-2">
@@ -622,7 +639,7 @@ export default function CheckoutForm() {
             {/* SUCCESS */}
             {success && (
               <p className="mt-4 text-sm text-green-600">
-              
+
               </p>
             )}
 
@@ -637,8 +654,8 @@ export default function CheckoutForm() {
               {submitLoading
                 ? "Saving..."
                 : isEdit
-                ? "Update Address"
-                : "Save Address"}
+                  ? "Update Address"
+                  : "Save Address"}
             </button>
           </form>
         </>

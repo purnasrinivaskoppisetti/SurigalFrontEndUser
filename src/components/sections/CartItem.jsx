@@ -6,6 +6,7 @@ import { Minus, Plus, Trash2 } from "lucide-react";
  
 import Text from "@/components/ui/Text";
 import useCart from "@/hooks/useCart";
+import Link from "next/link";
  
 export default function CartItem({ item, fetchCart }) {
   const { addCart, removeItem } = useCart();
@@ -65,19 +66,28 @@ export default function CartItem({ item, fetchCart }) {
       <div className="flex flex-col gap-4 sm:flex-row">
         {/* Product Image */}
         {/* Product Image */}
-        <div className="overflow-hidden rounded-xl border bg-gray-50 flex items-center justify-center h-[120px] w-[120px] shrink-0">
-          {item?.thumbnail_url ? (
-            <Image
-              src={item.thumbnail_url}
-              alt={item?.name || "Product Image"}
-              width={120}
-              height={120}
-              className="h-full w-full object-contain"
-            />
-          ) : (
-            <span className="text-xs text-gray-400 font-medium">No Image</span>
-          )}
-        </div>
+       
+
+<Link
+  href={`/products/${item.product_id}`}
+  className="shrink-0"
+>
+  <div className="overflow-hidden rounded-xl border bg-gray-50 flex items-center justify-center h-[120px] w-[120px] cursor-pointer hover:opacity-90 transition">
+    {item?.thumbnail_url ? (
+      <Image
+        src={item.thumbnail_url}
+        alt={item?.name || "Product Image"}
+        width={120}
+        height={120}
+        className="h-full w-full object-contain"
+      />
+    ) : (
+      <span className="text-xs text-gray-400 font-medium">
+        No Image
+      </span>
+    )}
+  </div>
+</Link>
  
         {/* Product Details */}
         <div className="flex-1">

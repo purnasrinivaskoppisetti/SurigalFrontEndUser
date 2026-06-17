@@ -14,8 +14,6 @@ import {
   Button,
 } from "@/components";
 
-import { ShoppingCart } from "lucide-react";
-
 export default function CartPage() {
   const {
     cart,
@@ -40,9 +38,7 @@ export default function CartPage() {
     return (
       <Container className="py-16">
         <div className="text-center">
-          <div className="mb-4 text-5xl">
-            🛒
-          </div>
+          <div className="mb-4 text-5xl">🛒</div>
 
           <Text
             variant="h3"
@@ -52,8 +48,7 @@ export default function CartPage() {
           </Text>
 
           <Text className="mt-2">
-            Browse our bestsellers and add your
-            favourites.
+            Browse our bestsellers and add your favourites.
           </Text>
 
           <Link
@@ -68,6 +63,7 @@ export default function CartPage() {
       </Container>
     );
   }
+
   return (
     <Container className="py-8">
       <div className="mb-8">
@@ -79,36 +75,40 @@ export default function CartPage() {
         </Text>
 
         <Text>
-          {summary?.total_items || 0} Item(s)
-          in your cart
+          {summary?.total_items || 0} Item(s) in your cart
         </Text>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
-        <div className="space-y-5">
-          {cart.map((item) => (
-            <CartItem
-              key={item.cart_id}
-              item={item}
-              fetchCart={fetchCart}
-            />
-          ))}
+        {/* Left Side */}
+        <div>
+          <div className="space-y-5">
+            {cart.map((item) => (
+              <CartItem
+                key={item.cart_id}
+                item={item}
+                fetchCart={fetchCart}
+              />
+            ))}
+          </div>
+
+          {/* Continue Shopping Button */}
+          <div className="mt-6">
+            <Link href="/products">
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto"
+              >
+                Continue Shopping
+              </Button>
+            </Link>
+          </div>
         </div>
 
-        <CartSummary
-          summary={summary}
-        />
+        {/* Right Side */}
+        <CartSummary summary={summary} />
       </div>
     </Container>
   );
 }
-
-
-
-
-
-
-
-
-
-

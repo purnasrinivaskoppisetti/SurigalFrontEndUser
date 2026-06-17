@@ -266,70 +266,33 @@ export default function Footer() {
 
       {/* Trust Bar */}
 
-      <div className="border-t border-white/10">
-        <Container>
-          <div
-            className="
-              flex
-              flex-wrap
-              items-center
-              justify-center
-              gap-3
-              py-4
-              md:gap-5
-            "
-          >
-            <Text
-              variant="bodySmall"
-              className="text-white/70"
-            >
-              🔒 SSL Secure
-            </Text>
+  <div className="border-t border-white/10">
+  <Container>
+    <div
+      className="
+        flex
+        flex-wrap
+        items-center
+        justify-center
+        gap-3
+        py-4
+        text-sm
+        text-gray-400
+      "
+    >
+      <span>Developed by</span>
 
-            <Text
-              variant="bodySmall"
-              className="text-white/70"
-            >
-              •
-            </Text>
-
-            <Text
-              variant="bodySmall"
-              className="text-white/70"
-            >
-              ✅ Genuine Products
-            </Text>
-
-            <Text
-              variant="bodySmall"
-              className="text-white/70"
-            >
-              •
-            </Text>
-
-            <Text
-              variant="bodySmall"
-              className="text-white/70"
-            >
-              🚚 Fast Delivery
-            </Text>
-
-            <Text
-              variant="bodySmall"
-              className="text-white/70"
-            >
-              •
-            </Text>
-
-            <Text
-              variant="bodySmall"
-              className="text-white/70"
-            >
-              ↩ Easy Returns
-            </Text>
-          </div>
-        </Container>
-      </div>
+      <a
+        href="https://www.ameyait.com/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="font-medium text-white transition hover:text-[var(--color-text-primary)]"
+      >
+        Ameya IT Solutions
+      </a>
+    </div>
+  </Container>
+</div>
 
       {/* Copyright */}
 
@@ -354,43 +317,7 @@ export default function Footer() {
               reserved.
             </Text>
 
-            <div className="flex items-center gap-4">
-              <Link href="/privacy-policy">
-                <Text
-                  variant="bodySmall"
-                  className="
-                    text-white/60
-                    hover:text-white
-                  "
-                >
-                  Privacy Policy
-                </Text>
-              </Link>
-
-              <Link href="/terms">
-                <Text
-                  variant="bodySmall"
-                  className="
-                    text-white/60
-                    hover:text-white
-                  "
-                >
-                  Terms
-                </Text>
-              </Link>
-
-              <Link href="/refund-policy">
-                <Text
-                  variant="bodySmall"
-                  className="
-                    text-white/60
-                    hover:text-white
-                  "
-                >
-                  Refund Policy
-                </Text>
-              </Link>
-            </div>
+            
           </div>
         </Container>
       </div>

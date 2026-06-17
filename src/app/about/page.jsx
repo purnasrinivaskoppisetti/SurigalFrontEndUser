@@ -112,14 +112,14 @@ export default function AboutPage() {
         <Container>
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             <div className="relative h-[320px] overflow-hidden rounded-3xl md:h-[400px]">
-  <Image
-    src="/aboutimage.png"
-    alt="Medical Equipment"
-    fill
-    priority
-    className="object-cover"
-  />
-</div>
+              <Image
+                src="/aboutimage.png"
+                alt="Medical Equipment"
+                fill
+                priority
+                className="object-cover"
+              />
+            </div>
 
             <div>
               <Text

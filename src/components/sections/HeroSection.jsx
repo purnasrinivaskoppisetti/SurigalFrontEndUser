@@ -23,7 +23,7 @@ export default function HeroSection() {
   // 📞 Call Function
   const handleCall = () => {
     window.location.href =
-      "tel:+919390072900";
+      "tel:+919885161899";
   };
 
   return (

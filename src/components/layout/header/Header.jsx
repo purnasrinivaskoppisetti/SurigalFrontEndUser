@@ -1,11 +1,12 @@
 
 
 "use client";
- 
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
- 
+import Image from "next/image";
+
 import {
   Menu,
   Heart,
@@ -13,73 +14,73 @@ import {
   Plus,
   ShoppingCart,
 } from "lucide-react";
- 
+
 import {
   useSelector,
   useDispatch,
 } from "react-redux";
- 
+
 import { useRouter } from "next/navigation";
- 
+
 import Cookies from "js-cookie";
- 
+
 import {
   Container,
   Text,
   AuthModal,
 } from "@/components";
- 
+
 import useCartCount from "@/hooks/useCartCountHeader";
- 
+
 // ✅ Import the new wishlist hook
 import useWishlistCount from "@/hooks/usewishlistcount";
- 
+
 import {
   setUser,
   clearUser,
 } from "@/redux/userSlice";
- 
+
 export default function Header() {
   const dispatch = useDispatch();
   const router = useRouter();
- 
+
   // =========================
   // STATES
   // =========================
   const [mounted, setMounted] =
     useState(false);
- 
+
   const [isAuthOpen, setIsAuthOpen] =
     useState(false);
- 
+
   const [isScrolled, setIsScrolled] =
     useState(false);
- 
+
   const [mobileOpen, setMobileOpen] =
     useState(false);
- 
+
   // =========================
   // REDUX
   // =========================
   const user = useSelector(
     (state) => state.user.user
   );
- 
+
   // =========================
   // HOOKS
   // ✅ wishlistCount now comes from the hook (API-based)
   // =========================
   const { cartCount } = useCartCount();
- 
+
   const { wishlistCount } = useWishlistCount();
- 
+
   // =========================
   // MOUNT
   // =========================
   useEffect(() => {
     setMounted(true);
   }, []);
- 
+
   // =========================
   // SCROLL EFFECT
   // =========================
@@ -89,28 +90,28 @@ export default function Header() {
         window.scrollY > 10
       );
     };
- 
+
     window.addEventListener(
       "scroll",
       handleScroll
     );
- 
+
     return () =>
       window.removeEventListener(
         "scroll",
         handleScroll
       );
   }, []);
- 
+
   // =========================
   // LOAD USER
   // =========================
   useEffect(() => {
     if (!mounted) return;
- 
+
     const savedUser =
       Cookies.get("user");
- 
+
     if (savedUser) {
       dispatch(
         setUser(
@@ -119,7 +120,7 @@ export default function Header() {
       );
     }
   }, [dispatch, mounted]);
- 
+
   // =========================
   // LOGOUT
   // ✅ Removed clearWishlist — hook auto-resets to 0 when user is null
@@ -127,16 +128,16 @@ export default function Header() {
   const handleLogout = () => {
     Cookies.remove("token");
     Cookies.remove("user");
- 
+
     localStorage.removeItem("user");
- 
+
     dispatch(clearUser());
- 
+
     setMobileOpen(false);
- 
+
     router.push("/");
   };
- 
+
   return (
     <header
       className={clsx(
@@ -146,16 +147,14 @@ export default function Header() {
     >
       <Container>
         <div className="flex h-14 items-center justify-between gap-3 lg:h-16">
- 
+
           {/* LOGO */}
           <Link
             href="/"
             className="flex shrink-0 items-center gap-2"
           >
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-text-primary)] text-white">
-              <Plus size={18} />
-            </div>
- 
+           
+
             <Text
               as="h1"
               variant="h4"
@@ -164,10 +163,10 @@ export default function Header() {
               Surgical World
             </Text>
           </Link>
- 
+
           {/* DESKTOP RIGHT */}
           <div className="hidden items-center gap-4 md:flex">
- 
+
             {/* WISHLIST */}
             {/* ✅ Uses mounted + wishlistCount from hook */}
             <button
@@ -178,7 +177,7 @@ export default function Header() {
               }}
             >
               <Heart size={18} />
- 
+
               {mounted &&
                 wishlistCount > 0 && (
                   <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
@@ -186,14 +185,14 @@ export default function Header() {
                   </span>
                 )}
             </button>
- 
+
             {/* CART */}
             <Link
               href="/cart"
               className="relative flex h-[42px] w-[42px] items-center justify-center"
             >
               <ShoppingCart size={18} />
- 
+
               {mounted &&
                 cartCount > 0 && (
                   <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--color-text-primary)] text-[10px] font-semibold text-white">
@@ -201,7 +200,7 @@ export default function Header() {
                   </span>
                 )}
             </Link>
- 
+
             {/* USER */}
             <div className="w-[170px]">
               {!mounted ? (
@@ -210,12 +209,12 @@ export default function Header() {
                 <div className="flex h-[42px] items-center justify-between rounded-lg border border-gray-200 px-3">
                   <div className="flex items-center gap-2 overflow-hidden">
                     <User size={16} />
- 
+
                     <span className="truncate text-sm font-medium">
                       {user.full_name}
                     </span>
                   </div>
- 
+
                   <button
                     onClick={handleLogout}
                     className="ml-2 cursor-pointer text-xs font-medium text-red-500"
@@ -230,7 +229,7 @@ export default function Header() {
                   className="flex h-[42px] w-full items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3"
                 >
                   <User size={16} />
- 
+
                   <span className="text-sm font-medium">
                     Login
                   </span>
@@ -238,10 +237,10 @@ export default function Header() {
               )}
             </div>
           </div>
- 
+
           {/* MOBILE */}
           <div className="flex items-center gap-2 md:hidden">
- 
+
             {/* WISHLIST */}
             {/* ✅ Uses mounted + wishlistCount from hook */}
             <Link
@@ -249,7 +248,7 @@ export default function Header() {
               className="relative flex h-9 w-9 items-center justify-center"
             >
               <Heart size={18} />
- 
+
               {mounted &&
                 wishlistCount > 0 && (
                   <span className="absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
@@ -257,14 +256,14 @@ export default function Header() {
                   </span>
                 )}
             </Link>
- 
+
             {/* CART */}
             <Link
               href="/cart"
               className="relative flex h-9 w-9 items-center justify-center"
             >
               <ShoppingCart size={18} />
- 
+
               {mounted &&
                 cartCount > 0 && (
                   <span className="absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--color-text-primary)] text-[10px] text-white">
@@ -272,7 +271,7 @@ export default function Header() {
                   </span>
                 )}
             </Link>
- 
+
             {/* MENU */}
             <button
               type="button"
@@ -284,62 +283,62 @@ export default function Header() {
           </div>
         </div>
       </Container>
- 
+
       {/* DESKTOP NAV */}
       <div className="hidden border-t md:block">
         <Container>
           <nav className="flex h-14 items-center gap-6">
             <NavLink href="/">Home</NavLink>
- 
+
             <NavLink href="/products">Products</NavLink>
- 
+
             <NavLink href="/about">About</NavLink>
- 
+
             <NavLink href="/contact">Contact</NavLink>
- 
+
             {mounted && user && (
               <NavLink href="/orders">Orders</NavLink>
             )}
           </nav>
         </Container>
       </div>
- 
+
       {/* MOBILE MENU */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 bg-black/40 md:hidden">
           <div className="absolute right-0 top-0 flex h-full w-72 flex-col gap-4 bg-white p-4">
- 
+
             <button
               className="self-end"
               onClick={() => setMobileOpen(false)}
             >
               ✕
             </button>
- 
+
             <NavLink href="/" onClick={() => setMobileOpen(false)}>
               Home
             </NavLink>
- 
+
             <NavLink href="/products" onClick={() => setMobileOpen(false)}>
               Products
             </NavLink>
- 
+
             <NavLink href="/about" onClick={() => setMobileOpen(false)}>
               About
             </NavLink>
- 
+
             <NavLink href="/contact" onClick={() => setMobileOpen(false)}>
               Contact
             </NavLink>
- 
+
             {mounted && user && (
               <NavLink href="/orders" onClick={() => setMobileOpen(false)}>
                 Orders
               </NavLink>
             )}
- 
+
             <hr />
- 
+
             {user ? (
               <button
                 onClick={handleLogout}
@@ -360,7 +359,7 @@ export default function Header() {
           </div>
         </div>
       )}
- 
+
       {/* AUTH MODAL */}
       <AuthModal
         isOpen={isAuthOpen}
@@ -369,7 +368,7 @@ export default function Header() {
     </header>
   );
 }
- 
+
 function NavLink({ href, children, onClick }) {
   return (
     <Link href={href} onClick={onClick}>
@@ -388,7 +387,7 @@ function NavLink({ href, children, onClick }) {
     </Link>
   );
 }
- 
+
 
 
 
