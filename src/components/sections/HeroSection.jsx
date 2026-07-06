@@ -45,11 +45,11 @@ export default function HeroSection() {
               variant="display"
               className="text-black max-w-3xl"
             >
-              Serving Healthcare with{" "}
+              One stop for  {" "}
               <span className="text-text-primary">
-                Trusted Quality
+                All your surgical & medical
               </span>{" "}
-              Products
+              Equiments
             </Text>
 
             {/* Description */}
@@ -62,11 +62,9 @@ export default function HeroSection() {
             </Text>
 
             {/* Features */}
-            <div className="flex flex-wrap gap-3 mt-8">
+            {/* <div className="flex flex-wrap gap-3 mt-8">
               {[
-                "ISO Certified",
-                "10,000+ Customers",
-                "25 Yr Warranty Support",
+                
               ].map((item) => (
                 <div
                   key={item}
@@ -75,7 +73,7 @@ export default function HeroSection() {
                   ✓ {item}
                 </div>
               ))}
-            </div>
+            </div> */}
 
             {/* CTA */}
             <div className="flex flex-wrap gap-4 mt-8">
@@ -170,10 +168,7 @@ export default function HeroSection() {
 
               {/* Bottom Badge */}
              
-                
-
                
-             
             </div>
 
             {/* Floating Call Button */}

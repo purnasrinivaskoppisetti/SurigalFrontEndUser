@@ -10,18 +10,21 @@ import {
 
 import useProducts from "@/hooks/useProducts";
 import useCategories from "@/hooks/useCategories";
-import { useRouter } from "next/navigation";
+import {
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 
 export default function ProductsPage({
   pageTitle = "Products",
 }) {
-  const [currentPage, setCurrentPage] = useState(1);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
+  const [currentPage, setCurrentPage] = useState(1);
   const [categoryId, setCategoryId] = useState("");
 
-  // ✅ NEW: search state
-  const [searchText, setSearchText] = useState("");
+  
 
   const { categories } = useCategories();
 
@@ -32,21 +35,21 @@ export default function ProductsPage({
     fetchProducts,
   } = useProducts();
 
-  // =========================
-  // FETCH PRODUCTS (UPDATED)
-  // =========================
-  useEffect(() => {
-    fetchProducts({
-      page: currentPage,
-      page_size: 12,
-      category_id: categoryId,
-      search: searchText, // ✅ added search
-    });
-  }, [categoryId, currentPage, searchText]);
+  // Fetch Products
+const search = searchParams.get("search") || "";
 
-  // =========================
-  // LOAD CATEGORY FROM SESSION
-  // =========================
+useEffect(() => {
+  console.log("Search:", search);
+
+  fetchProducts({
+    page: currentPage,
+    page_size: 12,
+    category_id: categoryId,
+    search,
+  });
+}, [currentPage, categoryId, search]);
+
+  // Load category from session
   useEffect(() => {
     const category = sessionStorage.getItem("selectedCategory");
 
@@ -56,31 +59,22 @@ export default function ProductsPage({
     }
   }, []);
 
-  // =========================
-  // CATEGORY CHANGE
-  // =========================
+  // Reset page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
   const handleCategoryChange = (value) => {
     setCategoryId(value);
     setCurrentPage(1);
-    router.push("/products");
-  };
 
-  // =========================
-  // SEARCH HANDLER
-  // =========================
-  const handleSearch = (e) => {
-    setSearchText(e.target.value);
-    setCurrentPage(1);
-  };
-
-  const handleSearchSubmit = () => {
-    setCurrentPage(1);
-    fetchProducts({
-      page: 1,
-      page_size: 6,
-      category_id: categoryId,
-      search: searchText,
-    });
+    if (search) {
+      router.push(
+        `/products?search=${encodeURIComponent(search)}`
+      );
+    } else {
+      router.push("/products");
+    }
   };
 
   return (
@@ -90,31 +84,15 @@ export default function ProductsPage({
           <Text variant="h4" className="text-black">
             {pageTitle}
           </Text>
-        </div>
 
-        {/* =========================
-            🔍 SEARCH BAR (NEW)
-        ========================= */}
-        <div className="mb-5 flex gap-2">
-          <input
-            type="text"
-            value={searchText}
-            onChange={handleSearch}
-            placeholder="Search products..."
-            className="h-12 flex-1 rounded-xl border border-gray-200 px-4 text-sm outline-none"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSearchSubmit();
-              }
-            }}
-          />
-
-          <button
-            onClick={handleSearchSubmit}
-            className="h-12 rounded-xl bg-[var(--color-text-primary)] px-5 text-white"
-          >
-            Search
-          </button>
+          {search && (
+            <Text
+              variant="body"
+              className="mt-2 text-gray-500"
+            >
+              Search results for: <b>{search}</b>
+            </Text>
+          )}
         </div>
 
         <div className="flex flex-col gap-5 md:flex-row">
@@ -140,16 +118,22 @@ export default function ProductsPage({
                 <option value="">All Categories</option>
 
                 {categories?.map((category) => (
-                  <option key={category.id} value={category.id}>
+                  <option
+                    key={category.id}
+                    value={category.id}
+                  >
                     {category.name}
                   </option>
                 ))}
               </select>
             </div>
 
-            {/* Count */}
+            {/* Product Count */}
             <div className="mb-5">
-              <Text variant="body" className="font-medium text-black">
+              <Text
+                variant="body"
+                className="font-medium text-black"
+              >
                 Showing {products?.length || 0} of{" "}
                 {pagination?.total_records || 0} products
               </Text>
@@ -164,34 +148,44 @@ export default function ProductsPage({
               <>
                 <ProductGrid products={products} />
 
-                {/* Pagination */}
                 {pagination?.total_pages > 1 && (
                   <div className="mt-10 flex flex-wrap items-center justify-center gap-2">
                     <button
                       disabled={currentPage === 1}
-                      onClick={() => setCurrentPage((prev) => prev - 1)}
+                      onClick={() =>
+                        setCurrentPage((prev) => prev - 1)
+                      }
                       className="rounded-lg border px-4 py-2 text-sm disabled:opacity-50"
                     >
                       Previous
                     </button>
 
-                    {[...Array(pagination.total_pages)].map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setCurrentPage(index + 1)}
-                        className={`h-10 w-10 rounded-lg text-sm font-medium transition ${
-                          currentPage === index + 1
-                            ? "bg-[var(--color-text-primary)] text-white"
-                            : "border bg-white"
-                        }`}
-                      >
-                        {index + 1}
-                      </button>
-                    ))}
+                    {[...Array(pagination.total_pages)].map(
+                      (_, index) => (
+                        <button
+                          key={index}
+                          onClick={() =>
+                            setCurrentPage(index + 1)
+                          }
+                          className={`h-10 w-10 rounded-lg text-sm font-medium transition ${
+                            currentPage === index + 1
+                              ? "bg-[var(--color-text-primary)] text-white"
+                              : "border bg-white"
+                          }`}
+                        >
+                          {index + 1}
+                        </button>
+                      )
+                    )}
 
                     <button
-                      disabled={currentPage === pagination.total_pages}
-                      onClick={() => setCurrentPage((prev) => prev + 1)}
+                      disabled={
+                        currentPage ===
+                        pagination.total_pages
+                      }
+                      onClick={() =>
+                        setCurrentPage((prev) => prev + 1)
+                      }
                       className="rounded-lg border px-4 py-2 text-sm disabled:opacity-50"
                     >
                       Next
@@ -201,12 +195,16 @@ export default function ProductsPage({
               </>
             ) : (
               <div className="rounded-2xl border border-dashed border-gray-300 py-20 text-center">
-                <Text variant="h5" className="mb-2">
+                <Text
+                  variant="h5"
+                  className="mb-2"
+                >
                   No Products Found
                 </Text>
 
                 <Text className="text-gray-500">
-                  No products available in this category.
+                  No products found
+                  {search ? ` for "${search}"` : "."}
                 </Text>
               </div>
             )}
@@ -216,7 +214,3 @@ export default function ProductsPage({
     </section>
   );
 }
-
-
-
-

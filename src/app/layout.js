@@ -1,14 +1,8 @@
-
-
 import { Suspense } from "react";
 import { Noto_Sans } from "next/font/google";
 import "./globals.css";
 
-import {
-  AuthInitializer,
-  Header,
-  Footer,
-} from "@/components";
+import { AuthInitializer, Header, Footer } from "@/components";
 
 import AuthHandler from "@/components/common/Authhandler";
 import ReduxProvider from "@/providers/ReduxProvider";
@@ -21,12 +15,10 @@ const notoSans = Noto_Sans({
 
 export const metadata = {
   title: "Surgical World",
-  description:
-    "Trusted Medical Equipment Store",
-        icons: {
+  description: "Trusted Medical Equipment Store",
+  icons: {
     icon: "/surgicallogo3.ico",
   },
-
 };
 
 /* ✅ Disable Mobile Zoom */
@@ -38,14 +30,9 @@ export const viewport = {
   userScalable: "no",
 };
 
-export default function RootLayout({
-  children,
-}) {
+export default function RootLayout({ children }) {
   return (
-    <html
-      lang="en"
-      className={`${notoSans.variable} h-full antialiased`}
-    >
+    <html lang="en" className={`${notoSans.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans">
         <ReduxProvider>
           <AuthInitializer />
@@ -54,9 +41,9 @@ export default function RootLayout({
             <AuthHandler>
               <Header />
 
-              <main className="flex-1">
-                {children}
-              </main>
+                <main className="flex-1 pt-14 md:pt-28 lg:pt-[120px]">
+                 {children}
+               </main>
 
               <Footer />
             </AuthHandler>

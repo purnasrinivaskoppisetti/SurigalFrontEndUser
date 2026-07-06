@@ -65,7 +65,6 @@ export default function ContactPage() {
       newErrors.phone =
         "Enter a valid 10 digit phone number";
     }
-
     // Email
     if (
       formData.email &&
@@ -74,14 +73,11 @@ export default function ContactPage() {
       newErrors.email =
         "Enter a valid email address";
     }
-
     // Message
     if (!formData.message.trim()) {
       newErrors.message = "Message is required";
     }
-
     setErrors(newErrors);
-
     return Object.keys(newErrors).length === 0;
   };
 
@@ -90,23 +86,29 @@ export default function ContactPage() {
   // =========================
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!validateForm()) return;
+  if (!validateForm()) return;
 
-    console.log("FORM DATA:", formData);
+  const message = `
+*New Contact Form*
 
-    alert("Message Sent Successfully!");
+Name: ${formData.name}
+Phone: ${formData.phone}
+Email: ${formData.email}
+Subject: ${formData.subject}
 
-    // Reset Form
-    setFormData({
-      name: "",
-      phone: "",
-      email: "",
-      subject: "General Enquiry",
-      message: "",
-    });
-  };
+Message:
+${formData.message}
+`;
+
+  const whatsappNumber = "9885161899"; // Your WhatsApp number
+
+  window.open(
+    `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`,
+    "_blank"
+  );
+};
 
   // =========================
   // CALL FUNCTION
@@ -119,6 +121,65 @@ export default function ContactPage() {
   const handleCallSecondary = () => {
     window.location.href = "tel:+919849845670";
   };
+  const outlets = [
+  {
+    id: 1,
+    branch: "Guntur Branch",
+    city: "Guntur",
+    address:
+      "Old Club Rd, Opp. Karumuri Hospitals, Gunturvari Thota, Kothapeta, Andhra Pradesh 522001",
+    map: "https://maps.app.goo.gl/sfbgvP1A6bQHvWFa8?g_st=aw",
+  },
+  {
+    id: 2,
+    branch: "Ponnur Branch",
+    city: "Ponnur",
+    address: "Ponnur, Andhra Pradesh",
+    map: "#",
+  },
+  {
+    id: 3,
+    branch: "Chirala Branch",
+    city: "Chirala",
+    address: "Chirala, Andhra Pradesh",
+    map: "#",
+  },
+  {
+    id: 4,
+    branch: "Ongole Branch",
+    city: "Ongole",
+    address: "Ongole, Andhra Pradesh",
+    map: "#",
+  },
+  {
+    id: 5,
+    branch: "Vijayawada Branch",
+    city: "Vijayawada",
+    address: "Vijayawada, Andhra Pradesh",
+    map: "#",
+  },
+  {
+    id: 6,
+    branch: "Eluru Branch",
+    city: "Eluru",
+    address: "Eluru, Andhra Pradesh",
+    map: "#",
+  },
+  {
+    id: 7,
+    branch: "Kakinada Branch",
+    city: "Kakinada",
+    address: "Kakinada, Andhra Pradesh",
+    map: "#",
+  },
+  {
+    id: 8,
+    branch: "Tirupati Branch",
+    city: "Tirupati",
+    address: "Tirupati, Andhra Pradesh",
+    map: "#",
+  },
+];
 
   return (
     <section className="py-12 md:py-12">
@@ -340,36 +401,43 @@ export default function ContactPage() {
             </div>
 
             {/* Address */}
-            <div className="rounded-2xl border bg-white p-5 shadow-sm">
-              <div className="flex gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50">
-                  <MapPin
-                    size={18}
-                    className="text-[var(--color-text-primary)]"
-                  />
-                </div>
+            {/* Our Outlets */}
+{/* Our Outlets */}
+<div className="rounded-2xl border bg-white p-5 shadow-sm">
+  <div className="flex gap-4">
+    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50">
+      <MapPin
+        size={18}
+        className="text-[var(--color-text-primary)]"
+      />
+    </div>
 
-                <div>
-                  <Text
-                    variant="h6"
-                    className="mb-1 text-black"
-                  >
-                    Visit Us
-                  </Text>
+    <div className="w-full">
+      <Text
+        variant="h6"
+        className="mb-4 text-black"
+      >
+        Our Outlets
+      </Text>
 
-                  <a
-                    href="https://maps.app.goo.gl/sfbgvP1A6bQHvWFa8?g_st=aw"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-gray-600 hover:text-[var(--color-text-primary)] leading-6"
-                  >
-                    Old Club Rd, opp. Karumuri Hospitals,
-                    Gunturvari Thota, Kothapeta,
-                    Guntur, Andhra Pradesh 522001
-                  </a>
-                </div>
-              </div>
-            </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {outlets.map((outlet) => (
+          <div
+            key={outlet.city}
+            className="rounded-lg border p-3"
+          >
+            <p className="font-semibold text-[var(--color-text-primary)]">
+              {outlet.city}
+            </p>
+            <p className="mt-1 text-sm leading-6 text-gray-600">
+              {outlet.address}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</div>
 
             {/* Google Map */}
             <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">

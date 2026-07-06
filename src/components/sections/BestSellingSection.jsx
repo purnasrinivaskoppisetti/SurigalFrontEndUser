@@ -1,25 +1,32 @@
 "use client";
-import { useEffect, useState } from "react";
-import { Container, ProductCard, Text,ProductGrid} from "..";
+
+import { useEffect } from "react";
+import {
+  Container,
+  ProductCard,
+  Text,
+} from "..";
 
 import useProducts from "@/hooks/useProducts";
+
 export default function BestSellingSection() {
   const {
     products,
     loading,
-    pagination,
     fetchProducts,
   } = useProducts();
 
   useEffect(() => {
     fetchProducts({
       page: 1,
-      page_size: 8,
+      page_size: 10,
     });
   }, []);
+
   return (
     <section className="py-12 lg:py-16">
       <Container>
+        {/* Heading */}
         <div className="mb-8 text-center">
           <Text
             as="h2"
@@ -29,27 +36,60 @@ export default function BestSellingSection() {
             Best Selling Products
           </Text>
 
-          <Text className="mt-2 max-w-2xl mx-auto">
+          <Text className="mx-auto mt-2 max-w-2xl">
             Trusted healthcare essentials chosen by thousands
             of customers across India.
           </Text>
         </div>
 
-        {/* Mobile Scroll */}
-        <div className="md:hidden overflow-x-auto scrollbar-hide">
-          <div className="flex gap-4 w-max pb-2">
-
+        {/* Loading */}
+        {loading ? (
+          <div className="py-16 text-center">
+            <Text>Loading products...</Text>
           </div>
-        </div>
+        ) : (
+          <>
+            {/* Mobile */}
+            <div className="grid grid-cols-2 gap-4 md:hidden">
+              {products?.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                />
+              ))}
+            </div>
 
-        {/* Tablet/Desktop Grid */}
-       
-          <ProductGrid
-            products={products}
-          />    
-        <div className="mt-10 text-center">
-         
-        </div>
+            {/* Tablet */}
+            <div className="hidden md:grid lg:hidden grid-cols-3 gap-5">
+              {products?.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                />
+              ))}
+            </div>
+
+            {/* Desktop */}
+            <div className="hidden lg:grid xl:hidden grid-cols-4 gap-5">
+              {products?.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                />
+              ))}
+            </div>
+
+            {/* Large Desktop - 5 Products */}
+            <div className="hidden xl:grid grid-cols-5 gap-5">
+              {products?.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </Container>
     </section>
   );

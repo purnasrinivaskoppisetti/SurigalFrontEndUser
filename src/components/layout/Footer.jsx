@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 
 import {
   FaFacebookF,
@@ -60,22 +61,25 @@ export default function Footer() {
 
           <div>
             <div className="mb-4 flex items-center gap-3">
-              <div
-                className="
-                  flex
-                  h-14
-                  w-14
-                  items-center
-                  justify-center
-                  rounded-2xl
-                  bg-[var(--color-text-primary)]
-                  text-3xl
-                  font-bold
-                  text-white
-                "
-              >
-                +
-              </div>
+            <div
+  className="
+    flex
+    h-14
+    w-14
+    items-center
+    justify-center
+    overflow-hidden
+    rounded-2xl
+  "
+>
+  <Image
+    src="/surgicallogo3.ico"
+    alt="Doctor"
+    width={56}
+    height={56}
+    className="h-full w-full rounded-2xl object-cover"
+  />
+</div>
 
               <Text
                 as="h3"
