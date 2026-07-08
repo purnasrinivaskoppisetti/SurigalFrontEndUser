@@ -27,7 +27,7 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="py-12 lg:py-20">
+    <section className="py-15 lg:py-20">
       <Container>
         <div className="grid lg:grid-cols-[60%_40%] gap-10 items-center">
           {/* LEFT CONTENT */}
