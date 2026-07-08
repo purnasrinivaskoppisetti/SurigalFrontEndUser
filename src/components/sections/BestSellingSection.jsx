@@ -48,47 +48,14 @@ export default function BestSellingSection() {
             <Text>Loading products...</Text>
           </div>
         ) : (
-          <>
-            {/* Mobile */}
-            <div className="grid grid-cols-2 gap-4 md:hidden">
-              {products?.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                />
-              ))}
-            </div>
-
-            {/* Tablet */}
-            <div className="hidden md:grid lg:hidden grid-cols-3 gap-5">
-              {products?.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                />
-              ))}
-            </div>
-
-            {/* Desktop */}
-            <div className="hidden lg:grid xl:hidden grid-cols-4 gap-5">
-              {products?.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                />
-              ))}
-            </div>
-
-            {/* Large Desktop - 5 Products */}
-            <div className="hidden xl:grid grid-cols-5 gap-5">
-              {products?.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                />
-              ))}
-            </div>
-          </>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5 lg:gap-5">
+            {products?.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+              />
+            ))}
+          </div>
         )}
       </Container>
     </section>
