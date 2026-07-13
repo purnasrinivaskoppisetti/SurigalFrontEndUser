@@ -205,11 +205,11 @@ export default function ProductCard({ product }) {
           </div>
 
           {/* 📦 Stock */}
-          <p className="mt-1 text-xs text-gray-500">
+          {/* <p className="mt-1 text-xs text-gray-500">
             {product?.stock_qty === 0
               ? "Out of Stock"
               : `${product?.stock_status} • ${product?.stock_qty} left`}
-          </p>
+          </p> */}
 
           {/* 🛒 Add to Cart / View Cart */}
           <div className="mt-4 flex gap-2">
