@@ -21,10 +21,17 @@ export default function HeroSection() {
   };
 
   // 📞 Call Function
-  const handleCall = () => {
-    window.location.href =
-      "tel:+919885161899";
-  };
+ const handleWhatsApp = () => {
+  const phone = "919885161899"; // Country code + number (no + or spaces)
+  const message = encodeURIComponent(
+    "Hi, I'm interested in your surgical & medical products."
+  );
+
+  window.open(
+    `https://wa.me/${phone}?text=${message}`,
+    "_blank"
+  );
+};
 
   return (
     <section className="py-15 lg:py-20">
@@ -95,27 +102,27 @@ export default function HeroSection() {
               </button>
 
               {/* Call Button */}
-              <button
-                onClick={handleCall}
-                className="
-                  border
-                  border-accent
-                  text-accent
-                  px-8
-                  py-4
-                  rounded-xl
-                  font-semibold
-                  flex
-                  items-center
-                  gap-2
-                  hover:bg-accent
-                  hover:text-white
-                  transition
-                "
-              >
-                <Phone size={18} />
-                Call Now
-              </button>
+           <button
+  onClick={handleWhatsApp}
+  className="
+    border
+    border-accent
+    text-accent
+    px-8
+    py-4
+    rounded-xl
+    font-semibold
+    flex
+    items-center
+    gap-2
+    hover:bg-accent
+    hover:text-white
+    transition
+  "
+>
+  <Phone size={18} />
+  WhatsApp Us
+</button>
             </div>
 
             {/* Rating */}
@@ -173,24 +180,24 @@ export default function HeroSection() {
 
             {/* Floating Call Button */}
             <div className="fixed bottom-6 right-6 z-50">
-              <button
-                onClick={handleCall}
-                className="
-                  bg-accent
-                  text-white
-                  px-6
-                  py-4
-                  rounded-full
-                  shadow-xl
-                  flex
-                  items-center
-                  gap-2
-                  font-semibold
-                "
-              >
-                <Phone size={20} />
-                Call Now
-              </button>
+            <button
+  onClick={handleWhatsApp}
+  className="
+    bg-accent
+    text-white
+    px-6
+    py-4
+    rounded-full
+    shadow-xl
+    flex
+    items-center
+    gap-2
+    font-semibold
+  "
+>
+  <Phone size={20} />
+  WhatsApp
+</button>
             </div>
           </div>
         </div>

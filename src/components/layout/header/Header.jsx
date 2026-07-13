@@ -99,17 +99,17 @@ export default function Header() {
       <Container>
         <div className="flex h-14 items-center gap-3 md:h-16 md:gap-4 lg:h-20">
           {/* Logo — scales across breakpoints */}
-        <Link href="/" className="flex h-16 shrink-0 items-center sm:h-18 md:h-20 lg:h-24">
-  <Image
-    src="/surgicalimg4.png"
-    alt="Surgical World"
-    width={250}
-    height={100}
-    priority
-    sizes="(max-width: 640px) 160px, (max-width: 768px) 180px, (max-width: 1024px) 200px, 220px"
-    className="h-full w-auto object-contain"
-  />
-</Link>
+          <Link href="/" className="flex h-32 shrink-0 items-center sm:h-40 md:h-38 lg:h-46">
+            <Image
+              src="/surgicalimg4.png"
+              alt="Surgical World"
+              width={400}
+              height={240}
+              priority
+              sizes="(max-width: 640px) 280px, (max-width: 768px) 320px, (max-width: 1024px) 360px, 400px"
+              className="h-full w-auto object-contain"
+            />
+          </Link>
 
           {/* Desktop search */}
           <div className="relative hidden w-full max-w-2xl md:block">

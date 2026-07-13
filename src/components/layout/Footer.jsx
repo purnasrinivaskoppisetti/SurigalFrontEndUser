@@ -61,35 +61,35 @@ export default function Footer() {
 
           <div>
             <div className="mb-4 flex items-center gap-3">
-            <div
+          <div
   className="
     flex
     h-14
-    w-14
+    w-37
     items-center
     justify-center
     overflow-hidden
-    rounded-2xl
+    
+    bg-white
   "
 >
   <Image
-    src="/surgicallogo3.ico"
+    src="/surgicalimg4.png"
     alt="Doctor"
-    width={56}
-    height={56}
-    className="h-full w-full rounded-2xl object-cover"
+    width={200}
+    height={220}
+    className="h-full w-full scale-200 rounded-2xl object-contain"
   />
 </div>
 
-              <Text
-                as="h3"
-                variant="h4"
-                className="text-white"
-              >
-                Surgical World
-              </Text>
+              {/* <Text
+    as="h3"
+    variant="h4"
+    className="text-white"
+  >
+    Surgical World
+  </Text> */}
             </div>
-
             <Text
               variant="body"
               className="mb-5 text-white/70 leading-7"
@@ -270,10 +270,10 @@ export default function Footer() {
 
       {/* Trust Bar */}
 
-  <div className="border-t border-white/10">
-  <Container>
-    <div
-      className="
+      <div className="border-t border-white/10">
+        <Container>
+          <div
+            className="
         flex
         flex-wrap
         items-center
@@ -283,20 +283,20 @@ export default function Footer() {
         text-sm
         text-gray-400
       "
-    >
-      <span>Developed by</span>
+          >
+            <span>Developed by</span>
 
-      <a
-        href="https://www.ameyait.com/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="font-medium text-white transition hover:text-[var(--color-text-primary)]"
-      >
-        Ameya IT Solutions
-      </a>
-    </div>
-  </Container>
-</div>
+            <a
+              href="https://www.ameyait.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-white transition hover:text-[var(--color-text-primary)]"
+            >
+              Ameya IT Solutions
+            </a>
+          </div>
+        </Container>
+      </div>
 
       {/* Copyright */}
 
@@ -321,7 +321,7 @@ export default function Footer() {
               reserved.
             </Text>
 
-            
+
           </div>
         </Container>
       </div>

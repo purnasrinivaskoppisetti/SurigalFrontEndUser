@@ -59,6 +59,9 @@ const locations = [
   "Ponnur",
   "Eluru",
   "Tirupati",
+  "Chirala",
+  "Kakinada",
+  "Ongole"
 ];
 
 export default function AboutPage() {
@@ -298,23 +301,28 @@ export default function AboutPage() {
             Find Us Across Andhra Pradesh
           </Text>
 
-          <div className="flex flex-wrap justify-center gap-3">
-            {locations.map((city) => (
-              <div
-                key={city}
-                className="
-                  rounded-full
-                  bg-blue-50
-                  px-4
-                  py-2
-                  text-sm
-                  font-medium
-                  text-[var(--color-text-primary)]
-                "
-              >
-                {city}
+          <div className="overflow-x-auto scrollbar-hide">
+            <div className="flex justify-center">
+              <div className="flex w-max gap-3 px-1">
+                {locations.map((city) => (
+                  <div
+                    key={city}
+                    className="
+                shrink-0
+                rounded-full
+                bg-blue-50
+                px-4
+                py-2
+                text-sm
+                font-medium
+                text-[var(--color-text-primary)]
+              "
+                  >
+                    {city}
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </Container>
       </section>
