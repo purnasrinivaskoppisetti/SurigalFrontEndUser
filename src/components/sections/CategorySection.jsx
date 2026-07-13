@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import Container from "@/components/ui/Container";
 import Text from "@/components/ui/Text";
 import useCategories from "@/hooks/useCategories";
@@ -15,6 +16,8 @@ import {
   Syringe,
   Microscope,
   Scissors,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 const categoryIcons = {
@@ -33,19 +36,24 @@ const categoryIcons = {
 
 export default function CategorySection() {
   const router = useRouter();
-  const {
-    categories,
-    loading,
-    error,
-  } = useCategories();
+  const scrollRef = useRef(null);
+
+  const { categories, loading, error } = useCategories();
+
+  const scrollCategories = (direction) => {
+    if (!scrollRef.current) return;
+
+    scrollRef.current.scrollBy({
+      left: direction === "left" ? -350 : 350,
+      behavior: "smooth",
+    });
+  };
 
   if (loading) {
     return (
       <section className="py-12">
         <Container>
-          <Text>
-            Loading categories...
-          </Text>
+          <Text>Loading categories...</Text>
         </Container>
       </section>
     );
@@ -66,7 +74,7 @@ export default function CategorySection() {
   return (
     <section className="py-10 md:py-12">
       <Container>
-        <div className="mb-6">
+        <div className="mb-6 text-center">
           <Text
             as="h2"
             variant="h3"
@@ -80,22 +88,64 @@ export default function CategorySection() {
           </Text>
         </div>
 
-        <div
-          className="
-            flex
-            gap-4
-            overflow-x-auto
-            scroll-smooth
-            pb-3
-            scrollbar-hide
-          "
-        >
-          {categories.map(
-            (item) => {
+        <div className="relative">
+          {/* Left Arrow (Desktop Only) */}
+          <button
+            onClick={() => scrollCategories("left")}
+            className="
+              absolute
+              left-0
+              top-1/2
+              z-10
+              hidden
+              -translate-y-1/2
+              rounded-full
+              bg-white
+              p-3
+              shadow-lg
+              hover:bg-gray-100
+              lg:flex
+            "
+          >
+            <ChevronLeft size={22} />
+          </button>
+
+          {/* Right Arrow (Desktop Only) */}
+          <button
+            onClick={() => scrollCategories("right")}
+            className="
+              absolute
+              right-0
+              top-1/2
+              z-10
+              hidden
+              -translate-y-1/2
+              rounded-full
+              bg-white
+              p-3
+              shadow-lg
+              hover:bg-gray-100
+              lg:flex
+            "
+          >
+            <ChevronRight size={22} />
+          </button>
+
+          <div
+            ref={scrollRef}
+            className="
+              flex
+              gap-4
+              overflow-x-auto
+              scroll-smooth
+              pb-3
+              scrollbar-hide
+              lg:px-14
+            "
+          >
+            {categories.map((item) => {
               const Icon =
-                categoryIcons[
-                item.name
-                ] ||
+                categoryIcons[item.name] ||
                 Microscope;
 
               return (
@@ -115,25 +165,19 @@ export default function CategorySection() {
                     md:min-w-[170px]
                     lg:min-w-[180px]
                     flex-shrink-0
-
                     bg-white
                     border
                     border-gray-200
                     rounded-2xl
-
                     p-4
-
                     flex
                     flex-col
                     items-center
                     justify-center
                     gap-3
-
                     cursor-pointer
-
                     hover:border-[var(--color-text-primary)]
                     hover:shadow-lg
-
                     transition-all
                     duration-300
                   "
@@ -143,16 +187,27 @@ export default function CategorySection() {
                       h-14
                       w-14
                       rounded-full
-
                       flex
                       items-center
                       justify-center
-
                       bg-blue-50
                     "
                   >
-                    {item.icon}
+                    <div
+                      className="
+    h-14
+    w-14
+    rounded-full
+    flex
+    items-center
+    justify-center
+    bg-blue-50
+  "
+                    >
+                      {item.icon}
+                    </div>
                   </div>
+
                   <Text
                     variant="bodySmall"
                     className="
@@ -166,8 +221,8 @@ export default function CategorySection() {
                   </Text>
                 </div>
               );
-            }
-          )}
+            })}
+          </div>
         </div>
       </Container>
     </section>

@@ -9,7 +9,9 @@ import {
   Star,
   Award,
   Truck,
+  
 } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 
 import { useRouter } from "next/navigation";
 
@@ -21,21 +23,21 @@ export default function HeroSection() {
   };
 
   // 📞 Call Function
- const handleWhatsApp = () => {
-  const phone = "919885161899"; // Country code + number (no + or spaces)
-  const message = encodeURIComponent(
-    "Hi, I'm interested in your surgical & medical products."
-  );
+  const handleWhatsApp = () => {
+    const phone = "919885161899"; // Country code + number (no + or spaces)
+    const message = encodeURIComponent(
+      "Hi, I'm interested in your surgical & medical products."
+    );
 
-  window.open(
-    `https://wa.me/${phone}?text=${message}`,
-    "_blank"
-  );
-};
+    window.open(
+      `https://wa.me/${phone}?text=${message}`,
+      "_blank"
+    );
+  };
 
   return (
     <section className="py-15 lg:py-20">
-      <Container>
+      <Container className="max-w-[1700px] px-6 lg:px-10 xl:px-12">
         <div className="grid lg:grid-cols-[60%_40%] gap-10 items-center">
           {/* LEFT CONTENT */}
           <div>
@@ -102,9 +104,9 @@ export default function HeroSection() {
               </button>
 
               {/* Call Button */}
-           <button
-  onClick={handleWhatsApp}
-  className="
+              <button
+                onClick={handleWhatsApp}
+                className="
     border
     border-accent
     text-accent
@@ -119,10 +121,10 @@ export default function HeroSection() {
     hover:text-white
     transition
   "
->
-  <Phone size={18} />
-  WhatsApp Us
-</button>
+              >
+                <FaWhatsapp size={18} />
+                WhatsApp Us
+              </button>
             </div>
 
             {/* Rating */}
@@ -160,7 +162,7 @@ export default function HeroSection() {
               "
             >
               {/* Free Delivery */}
-              
+
 
               {/* IMAGE */}
               <div className="relative h-[500px] w-full">
@@ -174,15 +176,15 @@ export default function HeroSection() {
               </div>
 
               {/* Bottom Badge */}
-             
-               
+
+
             </div>
 
             {/* Floating Call Button */}
             <div className="fixed bottom-6 right-6 z-50">
-            <button
-  onClick={handleWhatsApp}
-  className="
+              <button
+                onClick={handleWhatsApp}
+                className="
     bg-accent
     text-white
     px-6
@@ -194,10 +196,10 @@ export default function HeroSection() {
     gap-2
     font-semibold
   "
->
-  <Phone size={20} />
-  WhatsApp
-</button>
+              >
+                <FaWhatsapp size={20} />
+                WhatsApp
+              </button>
             </div>
           </div>
         </div>

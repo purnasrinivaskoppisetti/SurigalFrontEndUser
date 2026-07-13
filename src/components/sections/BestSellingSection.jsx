@@ -25,7 +25,7 @@ export default function BestSellingSection() {
 
   return (
     <section className="py-12 lg:py-16">
-      <Container>
+    <Container className="max-w-[1700px] px-6 lg:px-10 xl:px-12">
         {/* Heading */}
         <div className="mb-8 text-center">
           <Text

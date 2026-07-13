@@ -79,7 +79,7 @@ useEffect(() => {
 
   return (
     <section className="py-6 md:py-8">
-      <Container>
+         <Container className="max-w-[1600px]">
         <div className="mb-5">
           <Text variant="h4" className="text-black">
             {pageTitle}

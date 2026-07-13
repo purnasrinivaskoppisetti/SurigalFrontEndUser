@@ -183,7 +183,7 @@ ${formData.message}
 
   return (
     <section className="py-12 md:py-12">
-      <Container>
+      <Container className="max-w-[1700px] px-6 lg:px-10 xl:px-12">
         <div className="mb-10 text-center">
           <Text
             variant="h2"
