@@ -317,7 +317,7 @@ export default function Footer() {
               variant="bodySmall"
               className="text-white/60"
             >
-              © 2026 Surgical World. All rights
+              © 2026 Orange Quantum Hub. All rights
               reserved.
             </Text>
 
