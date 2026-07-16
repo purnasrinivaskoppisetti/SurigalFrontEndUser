@@ -5,6 +5,7 @@ import Link from "next/link";
 import clsx from "clsx";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { Home } from "lucide-react";
 
 import { Menu, X, Heart, User, ShoppingCart, Search, Mail, Phone, ChevronDown } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
@@ -71,7 +72,7 @@ export default function Header() {
     const handleClickOutside = (e) => {
       const clickedOutsideDesktop = desktopProfileRef.current && !desktopProfileRef.current.contains(e.target);
       const clickedOutsideMobile = mobileProfileRef.current && !mobileProfileRef.current.contains(e.target);
-      
+
       if (clickedOutsideDesktop && clickedOutsideMobile) {
         setProfileOpen(false);
       }
@@ -116,7 +117,15 @@ export default function Header() {
       )}
     >
       <Container>
-        <div className="flex h-14 items-center gap-3 md:h-16 md:gap-4 lg:h-20">
+        <div className="flex h-14 items-center gap-3 md:h-16  lg:h-20">
+          <Link 
+      href="/" 
+      className="block md:hidden p-1.5 rounded-lg text-gray-700 active:bg-gray-100 transition shrink-0"
+      aria-label="Go to home"
+    >
+      <Home size={20} />
+    </Link>
+         
           {/* Logo */}
           <Link href="/" className="flex h-32 shrink-0 items-center sm:h-40 md:h-38 lg:h-46">
             <Image

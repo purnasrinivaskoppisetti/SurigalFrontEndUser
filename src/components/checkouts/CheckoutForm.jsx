@@ -196,26 +196,26 @@ export default function CheckoutForm() {
       setValidationErrors({});
     }
 
-   
-  }
-   useEffect(() => {
-      if (
-        addresses?.length === 1 &&
-        !selectedAddress
-      ) {
-        setSelectedAddress(addresses[0]);
 
-        localStorage.setItem(
-          "selected_address",
-          JSON.stringify(addresses[0])
-        );
-      }
-    }, [
-      addresses,
-      selectedAddress,
-      setSelectedAddress,
-    ]);
-  
+  }
+  useEffect(() => {
+    if (
+      addresses?.length === 1 &&
+      !selectedAddress
+    ) {
+      setSelectedAddress(addresses[0]);
+
+      localStorage.setItem(
+        "selected_address",
+        JSON.stringify(addresses[0])
+      );
+    }
+  }, [
+    addresses,
+    selectedAddress,
+    setSelectedAddress,
+  ]);
+
 
   return (
     <div className="rounded-2xl bg-white p-6 shadow-sm">
@@ -261,25 +261,35 @@ export default function CheckoutForm() {
 
               return (
                 <div
+                  // key={address?.id}
+                  // onClick={() => {
+                  //   setSelectedAddress(
+                  //     address
+                  //   );
+
+                  //   localStorage.setItem(
+                  //     "selected_address",
+                  //     JSON.stringify(
+                  //       address
+                  //     )
+                  //   );
+                  // }}
+                  // className={`cursor-pointer rounded-xl border p-4 transition ${isSelected
+                  //     ? "border-green-500 bg-green-50"
+                  //     : "border-gray-200"
+                  //   }`}
+
+
                   key={address?.id}
                   onClick={() => {
-                    setSelectedAddress(
-                      address
-                    );
-
-                    localStorage.setItem(
-                      "selected_address",
-                      JSON.stringify(
-                        address
-                      )
-                    );
+                    setSelectedAddress(address);
+                    localStorage.setItem("selected_address", JSON.stringify(address));
                   }}
-                  className={`cursor-pointer rounded-xl border p-4 transition ${isSelected
-                      ? "border-green-500 bg-green-50"
-                      : "border-gray-200"
+                  className={`cursor-pointer rounded-xl border p-4 transition duration-200 ${isSelected ? "border-green-500 bg-green-50/60" : "border-gray-200 hover:border-gray-300"
                     }`}
                 >
-                  <div className="flex items-start justify-between gap-4">
+
+                  {/* <div className="flex items-start justify-between gap-4">
                     <div>
                       <h3 className="text-sm font-semibold text-black">
                         {
@@ -346,7 +356,67 @@ export default function CheckoutForm() {
                         Delete
                       </button>
                     </div>
-                  </div>
+                  </div> */}
+                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 w-full overflow-hidden">
+    
+    {/* 2. Text Wrapper (min-w-0 prevents text from pushing elements wide) */}
+    <div className="min-w-0 flex-1 space-y-1">
+      <div className="flex items-center gap-2">
+        <h3 className="text-sm font-semibold text-black truncate">
+          {address?.full_name}
+        </h3>
+        {address?.address_type && (
+          <span className="capitalize text-[10px] font-bold tracking-wide px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 border border-gray-200 shrink-0">
+            {address?.address_type}
+          </span>
+        )}
+      </div>
+
+      {/* break-words forces long strings to wrap to a new line instead of stretching */}
+      <p className="text-sm text-gray-600 break-words leading-relaxed">
+        {address?.address_line1}
+      </p>
+
+      <p className="text-sm text-gray-600 truncate">
+        {address?.city}, {address?.state} - {address?.pincode}
+      </p>
+
+      <p className="text-sm text-gray-600 font-medium">
+        📞 {address?.phone}
+      </p>
+
+     
+    </div>
+
+    {/* 3. Button Group (Changes layout seamlessly from stacked buttons on mobile to flat items on desktop) */}
+    <div className="w-full md:w-auto mt-2 md:mt-0 pt-3 md:pt-0 border-t md:border-t-0 border-gray-100 flex items-center justify-end gap-2 shrink-0">
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setShowForm(true);
+          fetchAddress(address?.id);
+          setValidationErrors({});
+        }}
+        className="flex-1 md:flex-initial text-center rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-black bg-white hover:bg-gray-50 active:scale-95 transition-transform"
+      >
+        Edit
+      </button>
+
+      <button
+        type="button"
+        disabled={deleteLoading}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleDelete(address?.id);
+        }}
+        className="flex-1 md:flex-initial text-center rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-500 bg-white hover:bg-red-50 disabled:opacity-50 active:scale-95 transition-transform"
+      >
+        Delete
+      </button>
+    </div>
+
+  </div>
                 </div>
               );
             })}
