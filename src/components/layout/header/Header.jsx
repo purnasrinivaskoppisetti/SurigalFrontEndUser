@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 
-import { Menu, X, Heart, User, ShoppingCart, Search } from "lucide-react";
+import { Menu, X, Heart, User, ShoppingCart, Search, Mail, Phone, ChevronDown } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
@@ -33,8 +33,12 @@ export default function Header() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [mobileSearch, setMobileSearch] = useState("");
+
+  const desktopProfileRef = useRef(null);
+  const mobileProfileRef = useRef(null);
 
   const user = useSelector((state) => state.user.user);
   const { cartCount } = useCartCount();
@@ -56,7 +60,6 @@ export default function Header() {
     if (savedUser) dispatch(setUser(JSON.parse(savedUser)));
   }, [dispatch, mounted]);
 
-  // Lock body scroll while the mobile drawer is open
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
     return () => {
@@ -64,12 +67,28 @@ export default function Header() {
     };
   }, [mobileOpen]);
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      const clickedOutsideDesktop = desktopProfileRef.current && !desktopProfileRef.current.contains(e.target);
+      const clickedOutsideMobile = mobileProfileRef.current && !mobileProfileRef.current.contains(e.target);
+      
+      if (clickedOutsideDesktop && clickedOutsideMobile) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleLogout = () => {
     Cookies.remove("token");
+    Cookies.remove("token", { path: "/" });
     Cookies.remove("user");
+    Cookies.remove("user", { path: "/" });
     localStorage.removeItem("user");
     dispatch(clearUser());
     setMobileOpen(false);
+    setProfileOpen(false);
     router.push("/");
   };
 
@@ -98,7 +117,7 @@ export default function Header() {
     >
       <Container>
         <div className="flex h-14 items-center gap-3 md:h-16 md:gap-4 lg:h-20">
-          {/* Logo — scales across breakpoints */}
+          {/* Logo */}
           <Link href="/" className="flex h-32 shrink-0 items-center sm:h-40 md:h-38 lg:h-46">
             <Image
               src="/surgicalimg4.png"
@@ -134,7 +153,7 @@ export default function Header() {
             </button>
           </div>
 
-          {/* Desktop right side */}
+          {/* Desktop right side layout */}
           <div className="ml-auto hidden shrink-0 items-center gap-4 md:flex">
             <IconButton
               onClick={() => router.push("/wishlist")}
@@ -150,23 +169,33 @@ export default function Header() {
               badgeClass="bg-[var(--color-text-primary)]"
             />
 
-            <div className="w-[170px]">
+            <div className="w-[170px]" ref={desktopProfileRef}>
               {!mounted ? (
                 <div className="h-[42px] w-full animate-pulse rounded-lg bg-gray-100" />
               ) : user ? (
-                <div className="flex h-[42px] items-center justify-between rounded-lg border border-gray-200 px-3">
-                  <div className="flex items-center gap-2 overflow-hidden">
-                    <User size={16} className="shrink-0 text-gray-500" />
-                    <span className="truncate text-sm font-medium">
-                      {user.full_name}
-                    </span>
-                  </div>
+                <div className="relative">
                   <button
-                    onClick={handleLogout}
-                    className="ml-2 shrink-0 cursor-pointer text-xs font-medium text-red-500 hover:text-red-600"
+                    onClick={() => setProfileOpen((prev) => !prev)}
+                    className="flex h-[42px] w-full items-center justify-between rounded-lg border border-gray-200 px-3 transition hover:bg-gray-50"
                   >
-                    Logout
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <User size={16} className="shrink-0 text-gray-500" />
+                      <span className="truncate text-sm font-medium">
+                        {user.full_name}
+                      </span>
+                    </div>
+                    <ChevronDown
+                      size={14}
+                      className={clsx(
+                        "shrink-0 text-gray-400 transition-transform",
+                        profileOpen && "rotate-180"
+                      )}
+                    />
                   </button>
+
+                  {profileOpen && (
+                    <ProfileDropdown user={user} onLogout={handleLogout} />
+                  )}
                 </div>
               ) : (
                 <button
@@ -181,7 +210,7 @@ export default function Header() {
             </div>
           </div>
 
-          {/* Mobile right side */}
+          {/* Mobile right side layout */}
           <div className="ml-auto flex shrink-0 items-center gap-1 md:hidden">
             <IconButton
               as={Link}
@@ -199,6 +228,26 @@ export default function Header() {
               badgeClass="bg-[var(--color-text-primary)]"
               compact
             />
+
+            {/* Profile icon renders ONLY when mounted AND user is logged in */}
+            {mounted && user && (
+              <div className="relative" ref={mobileProfileRef}>
+                <button
+                  type="button"
+                  onClick={() => setProfileOpen((prev) => !prev)}
+                  className={clsx(
+                    "flex h-9 w-9 items-center justify-center rounded-full text-gray-700 active:bg-gray-100 transition-colors",
+                    profileOpen && "text-[var(--color-text-primary)] bg-gray-50"
+                  )}
+                >
+                  <User size={20} />
+                </button>
+                {profileOpen && (
+                  <ProfileDropdown user={user} onLogout={handleLogout} alignRight />
+                )}
+              </div>
+            )}
+
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
@@ -210,7 +259,7 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Mobile search row — always visible */}
+        {/* Mobile search row */}
         <div className="pb-2.5 md:hidden">
           <div className="relative">
             <Search
@@ -236,7 +285,7 @@ export default function Header() {
         </div>
       </Container>
 
-      {/* Desktop nav row — back inside Header, so it can never go missing from a forgotten import */}
+      {/* Desktop nav row */}
       <div className="hidden border-t border-gray-100 md:block">
         <Container>
           <nav className="flex h-11 items-center gap-8">
@@ -343,7 +392,7 @@ export default function Header() {
           </nav>
 
           <div className="border-t border-gray-100 px-5 py-4">
-            {user ? (
+            {mounted && user ? (
               <button
                 onClick={handleLogout}
                 className="flex w-full items-center justify-center rounded-lg border border-red-200 py-2.5 text-sm font-medium text-red-500 active:bg-red-50"
@@ -368,6 +417,38 @@ export default function Header() {
 
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
     </header>
+  );
+}
+
+function ProfileDropdown({ user, onLogout, alignRight }) {
+  return (
+    <div
+      className={clsx(
+        "absolute top-full mt-2 w-64 rounded-xl border border-gray-200 bg-white shadow-lg z-50",
+        alignRight ? "right-[-50px] sm:right-0" : "right-0"
+      )}
+    >
+      <div className="space-y-2 px-5 py-4">
+        <p className="font-semibold text-gray-900">{user?.full_name}</p>
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <Mail size={14} />
+          <span className="truncate">{user?.email}</span>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <Phone size={14} />
+          <span>{user?.phone}</span>
+        </div>
+      </div>
+
+      <div className="border-t border-gray-100 px-5 py-3">
+        <button
+          onClick={onLogout}
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-red-200 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+        >
+          Logout
+        </button>
+      </div>
+    </div>
   );
 }
 

@@ -22,6 +22,7 @@ export const API_ENDPOINTS = {
  
   CREATE_RAZORPAY_PAYMENT: "/api/v1/billing/create-payment",
   VERIFY_RAZORPAY_PAYMENT: "/api/v1/billing/verify-payment",
+  GET_BANNER:`api/v1/banners`
  
  
  
