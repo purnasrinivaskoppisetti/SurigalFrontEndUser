@@ -104,7 +104,7 @@ export default function RootLayout({ children }) {
             <AuthHandler>
               <Header />
 
-              <main className="flex-1 pt-14 md:pt-24 lg:pt-[120px]">
+              <main className="flex-1 pt-24 md:pt-24 lg:pt-[120px]">
                 {children}
               </main>
 

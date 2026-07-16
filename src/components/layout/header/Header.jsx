@@ -5,9 +5,18 @@ import Link from "next/link";
 import clsx from "clsx";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Home } from "lucide-react";
-
-import { Menu, X, Heart, User, ShoppingCart, Search, Mail, Phone, ChevronDown } from "lucide-react";
+import { 
+  Home, 
+  Menu, 
+  X, 
+  Heart, 
+  User, 
+  ShoppingCart, 
+  Search, 
+  Mail, 
+  Phone, 
+  ChevronDown 
+} from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
@@ -117,27 +126,31 @@ export default function Header() {
       )}
     >
       <Container>
-        <div className="flex h-14 items-center gap-3 md:h-16  lg:h-20">
+        <div className="flex h-14 items-center gap-3 md:h-16 lg:h-20">
+          
+          {/* Mobile Home Link */}
           <Link 
-      href="/" 
-      className="block md:hidden p-1.5 rounded-lg text-gray-700 active:bg-gray-100 transition shrink-0"
-      aria-label="Go to home"
-    >
-      <Home size={20} />
-    </Link>
-         
-          {/* Logo */}
-          <Link href="/" className="flex h-32 shrink-0 items-center sm:h-40 md:h-38 lg:h-46">
-            <Image
-              src="/surgicalimg4.png"
-              alt="Surgical World"
-              width={400}
-              height={240}
-              priority
-              sizes="(max-width: 640px) 280px, (max-width: 768px) 320px, (max-width: 1024px) 360px, 400px"
-              className="h-full w-auto object-contain"
-            />
+            href="/" 
+            className="block md:hidden p-1.5 rounded-lg text-gray-700 active:bg-gray-100 transition shrink-0"
+            aria-label="Go to home"
+          >
+            <Home size={20} />
           </Link>
+          
+          {/* Left Logo Container */}
+          <Link href="/" className="flex h-full shrink-0 items-center justify-start">
+  <Image
+    src="/surgicalimg4.png"
+    alt="Surgical World"
+    width={400}
+    height={240}
+    priority
+    
+    sizes="(max-width: 640px) 180px, (max-width: 768px) 240px, 280px"
+
+    className="h-20 w-auto md:h-20 lg:h-40 object-contain object-left"
+  />
+</Link>
 
           {/* Desktop search */}
           <div className="relative hidden w-full max-w-2xl md:block">
@@ -238,7 +251,6 @@ export default function Header() {
               compact
             />
 
-            {/* Profile icon renders ONLY when mounted AND user is logged in */}
             {mounted && user && (
               <div className="relative" ref={mobileProfileRef}>
                 <button
@@ -328,71 +340,81 @@ export default function Header() {
         </Container>
       </div>
 
-      {/* Mobile drawer */}
+      {/* ========================================== */}
+      {/* MOBILE DRAWER FIXES                      */}
+      {/* ========================================== */}
       <div
         className={clsx(
-          "fixed inset-0 z-50 md:hidden",
-          mobileOpen ? "pointer-events-auto" : "pointer-events-none"
+          "fixed inset-0 z-50 md:hidden transition-opacity duration-300",
+          mobileOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         )}
-        aria-hidden={!mobileOpen}
       >
+        {/* Dark dim overlay background */}
         <div
           onClick={() => setMobileOpen(false)}
-          className={clsx(
-            "absolute inset-0 bg-black/40 backdrop-blur-[1px] transition-opacity duration-300",
-            mobileOpen ? "opacity-100" : "opacity-0"
-          )}
+          className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"
         />
 
+        {/* Menu Body Drawer Container */}
         <div
           className={clsx(
             "absolute right-0 top-0 flex h-full w-[82%] max-w-xs flex-col bg-white shadow-xl transition-transform duration-300 ease-out",
             mobileOpen ? "translate-x-0" : "translate-x-full"
           )}
         >
+          {/* Menu Top Branding Header */}
           <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
             {mounted && user ? (
-              <div className="flex items-center gap-2 overflow-hidden">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100">
-                  <User size={17} className="text-gray-500" />
+              <div className="flex items-center gap-2 overflow-hidden w-full">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100">
+                  <User size={17} className="text-slate-600" />
                 </div>
-                <span className="truncate text-sm font-semibold">
+                <span className="truncate text-sm font-bold text-slate-900">
                   {user.full_name}
                 </span>
               </div>
             ) : (
-              <span className="text-sm font-semibold">Menu</span>
+              <span className="text-sm font-bold text-slate-900">Menu</span>
             )}
             <button
               onClick={() => setMobileOpen(false)}
               aria-label="Close menu"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 active:bg-gray-100"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 active:bg-gray-100 transition-colors"
             >
               <X size={20} />
             </button>
           </div>
 
-          <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-3">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className={clsx(
-                  "rounded-lg px-3 py-3 text-sm font-medium",
-                  pathname === link.href ? "bg-gray-50 text-[var(--color-text-primary)]" : "text-gray-800 active:bg-gray-50"
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
+          {/* FIXED NAVIGATION TRACK LISTING LINKS */}
+          <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-4">
+            {NAV_LINKS.map((link) => {
+              const active = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={clsx(
+                    "flex items-center w-full rounded-xl px-4 py-3.5 text-sm font-semibold transition-all duration-200",
+                    active 
+                      ? "bg-slate-50 text-[var(--color-text-primary)] font-bold shadow-xs border-l-4 border-[var(--color-text-primary)] pl-3" 
+                      : "text-slate-700 active:bg-slate-50/80 hover:text-black"
+                  )}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+            
             {mounted && user && (
               <Link
                 href="/orders"
                 onClick={() => setMobileOpen(false)}
                 className={clsx(
-                  "rounded-lg px-3 py-3 text-sm font-medium",
-                  pathname === "/orders" ? "bg-gray-50 text-[var(--color-text-primary)]" : "text-gray-800 active:bg-gray-50"
+                  "flex items-center w-full rounded-xl px-4 py-3.5 text-sm font-semibold transition-all duration-200",
+                  pathname === "/orders"
+                    ? "bg-slate-50 text-[var(--color-text-primary)] font-bold shadow-xs border-l-4 border-[var(--color-text-primary)] pl-3"
+                    : "text-slate-700 active:bg-slate-50/80 hover:text-black"
                 )}
               >
                 Orders
@@ -400,13 +422,14 @@ export default function Header() {
             )}
           </nav>
 
-          <div className="border-t border-gray-100 px-5 py-4">
+          {/* Drawer Footer Controls */}
+          <div className="border-t border-gray-100 bg-slate-50/50 px-5 py-4">
             {mounted && user ? (
               <button
                 onClick={handleLogout}
-                className="flex w-full items-center justify-center rounded-lg border border-red-200 py-2.5 text-sm font-medium text-red-500 active:bg-red-50"
+                className="flex w-full items-center justify-center rounded-xl border border-red-200 bg-white py-3 text-sm font-semibold text-red-500 active:bg-red-50 shadow-xs transition-colors"
               >
-                Logout
+                Logout Account
               </button>
             ) : (
               <button
@@ -414,10 +437,10 @@ export default function Header() {
                   setIsAuthOpen(true);
                   setMobileOpen(false);
                 }}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-text-primary)] py-2.5 text-sm font-medium text-white active:opacity-90"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-text-primary)] py-3 text-sm font-semibold text-white active:opacity-95 shadow-md shadow-indigo-600/10"
               >
                 <User size={16} />
-                Login
+                Sign In / Register
               </button>
             )}
           </div>

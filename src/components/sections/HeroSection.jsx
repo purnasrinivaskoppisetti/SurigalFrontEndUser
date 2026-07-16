@@ -20,6 +20,9 @@ export default function HeroSection() {
   const { banners, loading } = useBanners();
   const [mounted, setMounted] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  
+  // Track direction: true for forward (1->4), false for backward (4->1)
+  const [isGoingForward, setIsGoingForward] = useState(true);
 
   // Touch handlers for mobile swipe gestures
   const [touchStart, setTouchStart] = useState(null);
@@ -32,31 +35,57 @@ export default function HeroSection() {
   }, []);
 
   // Safe fallback to static asset if backend returns nothing or is loading
-  const bannerList = banners && banners.length > 0 
-    ? banners 
+  const bannerList = banners && banners.length > 0
+    ? banners
     : [{ image_url: "/surgimage.png", title: "Surgical Equipment", redirect_url: null }];
 
   const totalSlides = bannerList.length;
 
-  // Infinite Auto-Scrolling Logic
+  // Smooth Back-and-Forth Auto-Scrolling Logic
   useEffect(() => {
     if (!mounted || loading || totalSlides <= 1) return;
 
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev === totalSlides - 1 ? 0 : prev + 1));
-    }, 4000); // Slides advance every 4 seconds
+      setCurrentSlide((prev) => {
+        if (isGoingForward) {
+          if (prev === totalSlides - 1) {
+            setIsGoingForward(false);
+            return prev - 1;
+          }
+          return prev + 1;
+        } else {
+          if (prev === 0) {
+            setIsGoingForward(true);
+            return prev + 1;
+          }
+          return prev - 1;
+        }
+      });
+    }, 4000); // Advanced automatically every 4 seconds
 
     return () => clearInterval(interval);
-  }, [mounted, loading, totalSlides]);
+  }, [mounted, loading, totalSlides, isGoingForward]);
 
   const nextSlide = (e) => {
     if (e) e.stopPropagation();
-    setCurrentSlide((prev) => (prev === totalSlides - 1 ? 0 : prev + 1));
+    setCurrentSlide((prev) => {
+      if (prev === totalSlides - 1) {
+        setIsGoingForward(false);
+        return prev - 1;
+      }
+      return prev + 1;
+    });
   };
 
   const prevSlide = (e) => {
     if (e) e.stopPropagation();
-    setCurrentSlide((prev) => (prev === 0 ? totalSlides - 1 : prev - 1));
+    setCurrentSlide((prev) => {
+      if (prev === 0) {
+        setIsGoingForward(true);
+        return prev + 1;
+      }
+      return prev - 1;
+    });
   };
 
   const handleTouchStart = (e) => {
@@ -100,7 +129,7 @@ export default function HeroSection() {
     <section className="py-12 lg:py-20 overflow-hidden bg-gradient-to-b from-slate-50/50 via-white to-white">
       <Container className="max-w-[1700px] px-4 sm:px-6 lg:px-10 xl:px-12">
         <div className="grid lg:grid-cols-[55%_45%] gap-10 lg:gap-8 xl:gap-16 items-center">
-          
+
           {/* LEFT CONTENT */}
           <div className="space-y-6 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 rounded-full bg-primary-soft px-4 py-1.5 border border-indigo-100/50 transition-all duration-300 hover:bg-indigo-50/80">
@@ -110,21 +139,13 @@ export default function HeroSection() {
               </span>
             </div>
 
-                <Text as="h1" variant="display" className="text-black max-w-3xl">
-
+            <h1 className="text-4xl sm:text-5xl xl:text-6xl font-black text-black tracking-tight leading-[1.15] max-w-3xl">
               One stop for{" "}
-
-              <span className="text-text-primary">
-
+              <span className="bg-text-primary from-indigo-600 via-blue-600 to-indigo-700 bg-clip-text text-transparent block sm:inline">
                 All your surgical & medical
-
               </span>{" "}
-
-              Equiments
-
-            </Text>
-
-
+              Equipments
+            </h1>
 
             <Text className="max-w-xl mx-auto lg:mx-0 text-base sm:text-lg text-paragraph leading-relaxed">
               Over 25 years of excellence supplying surgical & medical
@@ -149,35 +170,28 @@ export default function HeroSection() {
               </button>
             </div>
 
-            <div className="flex items-center justify-center lg:justify-start gap-3 pt-2">
-              <div className="flex text-gold">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={16} fill="currentColor" className="drop-shadow-xs" />
-                ))}
-              </div>
-              <span className="text-sm font-bold text-black border-l border-gray-200 pl-3">4.9/5 Rating</span>
-              <span className="text-sm text-paragraph font-medium">by 2,400+ customers</span>
-            </div>
+           
           </div>
 
           {/* RIGHT CAROUSEL CARD */}
-          <div className="relative group/carousel w-full max-w-[600px] lg:max-w-none mx-auto">
-            {/* Background glowing halo design accent */}
+          <div className="relative group/carousel w-full max-w-[540px] lg:max-w-none mx-auto">
+            {/* Ambient background glow behind the active image */}
             <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 to-blue-500/5 rounded-[36px] blur-xl scale-105 pointer-events-none" />
-            
+
+            {/* Completely removed bg-white, border, and shadows for an edge-to-edge floating layout */}
             <div
-              className="relative overflow-hidden rounded-[32px] bg-[#dfe7ff] h-[380px] sm:h-[480px] xl:h-[500px] shadow-2xl border border-white/40"
+              className="relative overflow-hidden h-[300px] sm:h-[400px] xl:h-[420px] bg-transparent"
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
             >
               {/* SKELETON LOADING STATE */}
               {!mounted || loading ? (
-                <div className="absolute inset-0 animate-pulse bg-gray-200" />
+                <div className="absolute inset-0 animate-pulse bg-gray-200 rounded-[32px]" />
               ) : (
                 <>
                   {/* Sliding Container Wrapper */}
-                  <div 
+                  <div
                     className="flex h-full transition-transform duration-700 cubic-bezier(0.4, 0, 0.2, 1)"
                     style={{ transform: `translateX(-${currentSlide * 100}%)` }}
                   >
@@ -186,9 +200,9 @@ export default function HeroSection() {
                       const imageSrc = banner?.image_url || "/surgimage.png";
 
                       return (
-                        <div 
-                          key={banner?.id || index} 
-                          className="min-w-full h-full relative cursor-pointer overflow-hidden group/slide"
+                        <div
+                          key={banner?.id || index}
+                          className="min-w-full h-full relative cursor-pointer overflow-hidden"
                           onClick={() => handleBannerClick(banner)}
                         >
                           <Image
@@ -197,45 +211,48 @@ export default function HeroSection() {
                             fill
                             priority={index === 0}
                             unoptimized={isFallback}
-                            className="object-cover transform transition-transform duration-700 group-hover/slide:scale-[1.03] pointer-events-none select-none"
+                            className="object-contain pointer-events-none select-none"
                           />
                         </div>
                       );
                     })}
                   </div>
 
-                  {/* DESKTOP CONTROLS: Arrow navigation triggers */}
+                  {/* REAL-TIME NAV CONTROLS */}
                   {totalSlides > 1 && (
                     <>
-                      {/* Left Arrow Button */}
                       <button
                         onClick={prevSlide}
-                        className="hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/90 hover:bg-white text-black items-center justify-center shadow-lg transition-all duration-200 opacity-0 group-hover/carousel:opacity-100 z-10 active:scale-90"
+                        className="hidden lg:flex absolute left-0 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-slate-900/10 hover:bg-slate-950/20 text-slate-800 items-center justify-center transition-all duration-200 opacity-0 group-hover/carousel:opacity-100 z-10 active:scale-90"
                         aria-label="Previous slide"
                       >
                         <ChevronLeft size={20} />
                       </button>
 
-                      {/* Right Arrow Button */}
                       <button
                         onClick={nextSlide}
-                        className="hidden lg:flex absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/90 hover:bg-white text-black items-center justify-center shadow-lg transition-all duration-200 opacity-0 group-hover/carousel:opacity-100 z-10 active:scale-90"
+                        className="hidden lg:flex absolute right-0 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-slate-900/10 hover:bg-slate-950/20 text-slate-800 items-center justify-center transition-all duration-200 opacity-0 group-hover/carousel:opacity-100 z-10 active:scale-90"
                         aria-label="Next slide"
                       >
                         <ChevronRight size={20} />
                       </button>
 
                       {/* Pagination Indicator Dots */}
-                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10 bg-black/15 px-3 py-1.5 rounded-full backdrop-blur-xs">
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10 bg-slate-900/5 px-3 py-1.5 rounded-full backdrop-blur-xs">
                         {bannerList.map((_, index) => (
                           <button
                             key={index}
                             onClick={(e) => {
                               e.stopPropagation();
+                              if (index > currentSlide) {
+                                setIsGoingForward(index < totalSlides - 1);
+                              } else if (index < currentSlide) {
+                                setIsGoingForward(index === 0);
+                              }
                               setCurrentSlide(index);
                             }}
-                            className={`h-2 rounded-full transition-all duration-300 ${
-                              currentSlide === index ? "w-5 bg-white" : "w-2 bg-white/50"
+                            className={`h-1.5 rounded-full transition-all duration-300 ${
+                              currentSlide === index ? "w-5 bg-slate-800" : "w-1.5 bg-slate-400"
                             }`}
                             aria-label={`Go to slide ${index + 1}`}
                           />
@@ -251,7 +268,7 @@ export default function HeroSection() {
             <div className="fixed bottom-6 right-6 z-50">
               <button
                 onClick={handleWhatsApp}
-                className="bg-accent text-white px-6 py-4 rounded-full shadow-xl flex items-center gap-2 font-semibold hover:scale-105 active:scale-95 transition-all duration-200"
+                className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-4 rounded-full shadow-xl flex items-center gap-2 font-semibold hover:scale-105 active:scale-95 transition-all duration-200"
               >
                 <FaWhatsapp size={20} />
               </button>
