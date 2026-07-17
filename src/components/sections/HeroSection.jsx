@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Container from "@/components/ui/Container";
 import Text from "@/components/ui/Text";
@@ -20,14 +20,15 @@ export default function HeroSection() {
   const { banners, loading } = useBanners();
   const [mounted, setMounted] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
-  
-  // Track direction: true for forward (1->4), false for backward (4->1)
-  const [isGoingForward, setIsGoingForward] = useState(true);
+
+  // Controls whether the slide transform has a CSS transition (disabled during the silent loop-reset)
+  const [withTransition, setWithTransition] = useState(true);
 
   // Touch handlers for mobile swipe gestures
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
 
+  const trackRef = useRef(null);
   const minSwipeDistance = 50;
 
   useEffect(() => {
@@ -41,48 +42,55 @@ export default function HeroSection() {
 
   const totalSlides = bannerList.length;
 
-  // Smooth Back-and-Forth Auto-Scrolling Logic
+  // Append a clone of the first slide at the end so we can loop seamlessly (1->2->3->1...)
+  const slidesToRender = totalSlides > 1 ? [...bannerList, bannerList[0]] : bannerList;
+
+  // Continuous forward auto-scroll: 1 -> 2 -> 3 -> (clone of 1) -> silently reset -> 1 ...
   useEffect(() => {
     if (!mounted || loading || totalSlides <= 1) return;
 
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => {
-        if (isGoingForward) {
-          if (prev === totalSlides - 1) {
-            setIsGoingForward(false);
-            return prev - 1;
-          }
-          return prev + 1;
-        } else {
-          if (prev === 0) {
-            setIsGoingForward(true);
-            return prev + 1;
-          }
-          return prev - 1;
-        }
-      });
-    }, 4000); // Advanced automatically every 4 seconds
+      setCurrentSlide((prev) => prev + 1);
+    }, 4000);
 
     return () => clearInterval(interval);
-  }, [mounted, loading, totalSlides, isGoingForward]);
+  }, [mounted, loading, totalSlides]);
+
+  // When we land on the cloned slide (index === totalSlides), silently jump back to real slide 0
+  useEffect(() => {
+    if (totalSlides <= 1) return;
+
+    if (currentSlide === totalSlides) {
+      const timeout = setTimeout(() => {
+        setWithTransition(false);
+        setCurrentSlide(0);
+      }, 700); // match transition duration
+      return () => clearTimeout(timeout);
+    }
+
+    if (!withTransition) {
+      // Re-enable transition on the next tick after the silent jump
+      const raf = requestAnimationFrame(() => setWithTransition(true));
+      return () => cancelAnimationFrame(raf);
+    }
+  }, [currentSlide, totalSlides, withTransition]);
 
   const nextSlide = (e) => {
     if (e) e.stopPropagation();
-    setCurrentSlide((prev) => {
-      if (prev === totalSlides - 1) {
-        setIsGoingForward(false);
-        return prev - 1;
-      }
-      return prev + 1;
-    });
+    setCurrentSlide((prev) => prev + 1);
   };
 
   const prevSlide = (e) => {
     if (e) e.stopPropagation();
     setCurrentSlide((prev) => {
       if (prev === 0) {
-        setIsGoingForward(true);
-        return prev + 1;
+        // Jump to the clone position then let it animate backward smoothly
+        setWithTransition(false);
+        requestAnimationFrame(() => {
+          setWithTransition(true);
+          requestAnimationFrame(() => setCurrentSlide(totalSlides - 1));
+        });
+        return totalSlides; // temporarily sit on the clone
       }
       return prev - 1;
     });
@@ -124,6 +132,9 @@ export default function HeroSection() {
       router.push(banner.redirect_url);
     }
   };
+
+  // For the dot indicators, map the "real" active dot (wraps clone -> 0)
+  const activeDot = currentSlide % totalSlides;
 
   return (
     <section className="py-12 lg:py-20 overflow-hidden bg-gradient-to-b from-slate-50/50 via-white to-white">
@@ -170,7 +181,7 @@ export default function HeroSection() {
               </button>
             </div>
 
-           
+
           </div>
 
           {/* RIGHT CAROUSEL CARD */}
@@ -178,9 +189,9 @@ export default function HeroSection() {
             {/* Ambient background glow behind the active image */}
             <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 to-blue-500/5 rounded-[36px] blur-xl scale-105 pointer-events-none" />
 
-            {/* Completely removed bg-white, border, and shadows for an edge-to-edge floating layout */}
+            {/* Rounded, edge-to-edge floating layout */}
             <div
-              className="relative overflow-hidden h-[300px] sm:h-[400px] xl:h-[420px] bg-transparent"
+              className="relative overflow-hidden h-[300px] sm:h-[400px] xl:h-[420px] bg-transparent rounded-[32px]"
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
@@ -192,17 +203,20 @@ export default function HeroSection() {
                 <>
                   {/* Sliding Container Wrapper */}
                   <div
-                    className="flex h-full transition-transform duration-700 cubic-bezier(0.4, 0, 0.2, 1)"
+                    ref={trackRef}
+                    className={`flex h-full ${
+                      withTransition ? "transition-transform duration-700 ease-[cubic-bezier(0.4,0,0.2,1)]" : ""
+                    }`}
                     style={{ transform: `translateX(-${currentSlide * 100}%)` }}
                   >
-                    {bannerList.map((banner, index) => {
+                    {slidesToRender.map((banner, index) => {
                       const isFallback = !banner?.image_url;
                       const imageSrc = banner?.image_url || "/surgimage.png";
 
                       return (
                         <div
-                          key={banner?.id || index}
-                          className="min-w-full h-full relative cursor-pointer overflow-hidden"
+                          key={banner?.id ? `${banner.id}-${index}` : index}
+                          className="min-w-full h-full relative cursor-pointer overflow-hidden rounded-[32px]"
                           onClick={() => handleBannerClick(banner)}
                         >
                           <Image
@@ -211,7 +225,7 @@ export default function HeroSection() {
                             fill
                             priority={index === 0}
                             unoptimized={isFallback}
-                            className="object-contain pointer-events-none select-none"
+                            className="object-contain pointer-events-none select-none rounded-[32px]"
                           />
                         </div>
                       );
@@ -244,15 +258,11 @@ export default function HeroSection() {
                             key={index}
                             onClick={(e) => {
                               e.stopPropagation();
-                              if (index > currentSlide) {
-                                setIsGoingForward(index < totalSlides - 1);
-                              } else if (index < currentSlide) {
-                                setIsGoingForward(index === 0);
-                              }
+                              setWithTransition(true);
                               setCurrentSlide(index);
                             }}
                             className={`h-1.5 rounded-full transition-all duration-300 ${
-                              currentSlide === index ? "w-5 bg-slate-800" : "w-1.5 bg-slate-400"
+                              activeDot === index ? "w-5 bg-slate-800" : "w-1.5 bg-slate-400"
                             }`}
                             aria-label={`Go to slide ${index + 1}`}
                           />

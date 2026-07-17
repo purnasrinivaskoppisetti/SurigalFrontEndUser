@@ -126,29 +126,27 @@ export default function Header() {
       )}
     >
       <Container>
-        <div className="flex h-14 items-center gap-3 md:h-16 lg:h-20">
+       <div className="flex h-14 items-center gap-1 md:gap-3 md:h-16 lg:h-20">
           
           {/* Mobile Home Link */}
           <Link 
             href="/" 
-            className="block md:hidden p-1.5 rounded-lg text-gray-700 active:bg-gray-100 transition shrink-0"
+           className="block md:hidden  rounded-lg text-gray-700 active:bg-gray-100 transition shrink-0"
             aria-label="Go to home"
           >
             <Home size={20} />
           </Link>
           
           {/* Left Logo Container */}
-          <Link href="/" className="flex h-full shrink-0 items-center justify-start">
+ <Link href="/" className="flex h-full shrink-0 items-center justify-start -ml-2 md:ml-0">
   <Image
     src="/surgicalimg4.png"
     alt="Surgical World"
     width={400}
     height={240}
     priority
-    
     sizes="(max-width: 640px) 180px, (max-width: 768px) 240px, 280px"
-
-    className="h-20 w-auto md:h-20 lg:h-40 object-contain object-left"
+    className="h-25 w-auto md:h-20 lg:h-40 object-contain object-left"
   />
 </Link>
 
