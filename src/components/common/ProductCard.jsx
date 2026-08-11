@@ -8,12 +8,11 @@ import {
   Heart,
   ShoppingCart,
   Star,
+  Scale,
+  Ruler,
 } from "lucide-react";
 
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
 
 import { AuthModal } from "@/components";
 
@@ -40,6 +39,11 @@ export default function ProductCard({ product }) {
   const user = true;
 
   const id = product?.id;
+
+  const weight = product?.weight;
+  const length = product?.length;
+  const breadth = product?.breadth;
+  const height = product?.height;
 
   const imageUrl =
     product?.thumbnail_url ||
@@ -191,6 +195,36 @@ export default function ProductCard({ product }) {
             </span>
           </div>
 
+          {/* ⚖️ Separate Weight, Length, Breadth, and Height Badges */}
+          {(weight || length || breadth || height) && (
+            <div className="mt-2 flex flex-wrap gap-1 text-xs text-gray-600">
+              {weight > 0 && (
+                <span className="inline-flex items-center gap-1 rounded bg-gray-100 px-1.5 py-0.5 text-[11px]">
+                  <Scale size={11} className="text-gray-500" />
+                  <span>Weight: {weight} kg</span>
+                </span>
+              )}
+              {length > 0 && (
+                <span className="inline-flex items-center gap-1 rounded bg-gray-100 px-1.5 py-0.5 text-[11px]">
+                  <Ruler size={11} className="text-gray-500" />
+                  <span>L: {length} cm</span>
+                </span>
+              )}
+              {breadth > 0 && (
+                <span className="inline-flex items-center gap-1 rounded bg-gray-100 px-1.5 py-0.5 text-[11px]">
+                  <Ruler size={11} className="text-gray-500" />
+                  <span>B: {breadth} cm</span>
+                </span>
+              )}
+              {height > 0 && (
+                <span className="inline-flex items-center gap-1 rounded bg-gray-100 px-1.5 py-0.5 text-[11px]">
+                  <Ruler size={11} className="text-gray-500" />
+                  <span>H: {height} cm</span>
+                </span>
+              )}
+            </div>
+          )}
+
           {/* 💰 Price */}
           <div className="mt-2 flex items-center gap-2">
             <span className="text-lg font-bold text-green-600">
@@ -204,15 +238,8 @@ export default function ProductCard({ product }) {
             )}
           </div>
 
-          {/* 📦 Stock */}
-          {/* <p className="mt-1 text-xs text-gray-500">
-            {product?.stock_qty === 0
-              ? "Out of Stock"
-              : `${product?.stock_status} • ${product?.stock_qty} left`}
-          </p> */}
-
           {/* 🛒 Add to Cart / View Cart */}
-          <div className="mt-4 flex gap-2">
+          <div className="mt-auto pt-4 flex gap-2">
             <button
               onClick={handleCart}
               disabled={

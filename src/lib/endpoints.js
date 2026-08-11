@@ -22,7 +22,10 @@ export const API_ENDPOINTS = {
  
   CREATE_RAZORPAY_PAYMENT: "/api/v1/billing/create-payment",
   VERIFY_RAZORPAY_PAYMENT: "/api/v1/billing/verify-payment",
-  GET_BANNER:`api/v1/banners`
+  GET_BANNER:`api/v1/banners`,
+  CHECK_SERVICEABILITY: "/api/v1/shipping/check-serviceability",
+ 
+  TRACK_ORDER: (orderId) => `/api/v1/shipping/track-order/${orderId}`,
  
  
  
