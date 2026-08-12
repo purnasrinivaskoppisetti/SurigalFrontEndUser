@@ -196,7 +196,7 @@ export default function ProductCard({ product }) {
           </div>
 
           {/* ⚖️ Separate Weight, Length, Breadth, and Height Badges */}
-          {(weight || length || breadth || height) && (
+          {/* {(weight || length || breadth || height) && (
             <div className="mt-2 flex flex-wrap gap-1 text-xs text-gray-600">
               {weight > 0 && (
                 <span className="inline-flex items-center gap-1 rounded bg-gray-100 px-1.5 py-0.5 text-[11px]">
@@ -223,7 +223,7 @@ export default function ProductCard({ product }) {
                 </span>
               )}
             </div>
-          )}
+          )} */}
 
           {/* 💰 Price */}
           <div className="mt-2 flex items-center gap-2">
