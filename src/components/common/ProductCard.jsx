@@ -38,7 +38,15 @@ export default function ProductCard({ product }) {
   // Replace with actual auth later if needed for wishlist
   const user = true;
 
-  const id = product?.id;
+  const id = product?.id || product?.product_id;
+
+  // Extract variant ID if product has variants
+  const defaultVariant = product?.variants?.length > 0 ? product.variants[0] : null;
+  const variantId = defaultVariant?.id || product?.variant_id || null;
+
+  // Resolved pricing (Variant price -> Main product price)
+  const salePrice = defaultVariant?.sale_price ?? product?.sale_price ?? 0;
+  const mrp = defaultVariant?.mrp ?? product?.mrp ?? 0;
 
   const weight = product?.weight;
   const length = product?.length;
@@ -50,7 +58,7 @@ export default function ProductCard({ product }) {
     product?.images?.[0]?.image_url ||
     "/images/product-placeholder.png";
 
-  // ✅ Fetch wishlist on mount
+  // Fetch wishlist on mount
   useEffect(() => {
     fetchWishlist();
   }, [fetchWishlist]);
@@ -72,11 +80,11 @@ export default function ProductCard({ product }) {
         await addToWishlist(id);
       }
     } catch (error) {
-      console.log(error);
+      console.log("Wishlist Error:", error);
     }
   };
 
-  // 🛒 Add Cart / View Cart
+  // 🛒 Add Cart / View Cart Handler
   const handleCart = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -92,13 +100,14 @@ export default function ProductCard({ product }) {
     try {
       setAddingCart(true);
 
-      await addCart(id, 1, product);
+      // ✅ PASSING ALL 4 PARAMETERS: (productId, quantity, productData, variantId)
+      const response = await addCart(id, 1, product, variantId);
 
-      setAddedToCart(true);
-
-      console.log("Added to cart");
+      if (response?.success) {
+        setAddedToCart(true);
+      }
     } catch (error) {
-      console.log(error);
+      console.log("Add to Cart Error:", error);
     } finally {
       setAddingCart(false);
     }
@@ -135,7 +144,7 @@ export default function ProductCard({ product }) {
               "
             />
 
-            {/* ❤️ Wishlist */}
+            {/* ❤️ Wishlist Button */}
             <button
               onClick={handleWishlist}
               aria-label="Wishlist"
@@ -144,7 +153,7 @@ export default function ProductCard({ product }) {
                 flex h-9 w-9 items-center justify-center
                 rounded-full bg-white shadow-md
                 transition hover:scale-105
-                active:scale-95
+                active:scale-95 cursor-pointer
               "
             >
               <Heart
@@ -190,50 +199,19 @@ export default function ProductCard({ product }) {
             />
 
             <span>
-              {product?.rating || 0} (
-              {product?.review_count || 0})
+              {product?.rating || 0} ({product?.review_count || 0})
             </span>
           </div>
-
-          {/* ⚖️ Separate Weight, Length, Breadth, and Height Badges */}
-          {/* {(weight || length || breadth || height) && (
-            <div className="mt-2 flex flex-wrap gap-1 text-xs text-gray-600">
-              {weight > 0 && (
-                <span className="inline-flex items-center gap-1 rounded bg-gray-100 px-1.5 py-0.5 text-[11px]">
-                  <Scale size={11} className="text-gray-500" />
-                  <span>Weight: {weight} kg</span>
-                </span>
-              )}
-              {length > 0 && (
-                <span className="inline-flex items-center gap-1 rounded bg-gray-100 px-1.5 py-0.5 text-[11px]">
-                  <Ruler size={11} className="text-gray-500" />
-                  <span>L: {length} cm</span>
-                </span>
-              )}
-              {breadth > 0 && (
-                <span className="inline-flex items-center gap-1 rounded bg-gray-100 px-1.5 py-0.5 text-[11px]">
-                  <Ruler size={11} className="text-gray-500" />
-                  <span>B: {breadth} cm</span>
-                </span>
-              )}
-              {height > 0 && (
-                <span className="inline-flex items-center gap-1 rounded bg-gray-100 px-1.5 py-0.5 text-[11px]">
-                  <Ruler size={11} className="text-gray-500" />
-                  <span>H: {height} cm</span>
-                </span>
-              )}
-            </div>
-          )} */}
 
           {/* 💰 Price */}
           <div className="mt-2 flex items-center gap-2">
             <span className="text-lg font-bold text-green-600">
-              ₹{product?.sale_price}
+              ₹{salePrice.toLocaleString("en-IN")}
             </span>
 
-            {product?.mrp && (
+            {mrp > salePrice && (
               <span className="text-sm text-gray-400 line-through">
-                ₹{product?.mrp}
+                ₹{mrp.toLocaleString("en-IN")}
               </span>
             )}
           </div>
@@ -252,7 +230,7 @@ export default function ProductCard({ product }) {
                 px-3 py-2.5
                 text-sm font-medium text-white
                 transition-all duration-200
-                active:scale-95
+                active:scale-95 cursor-pointer
                 disabled:cursor-not-allowed
                 disabled:opacity-70
                 ${

@@ -6,23 +6,22 @@ import { useSelector } from "react-redux";
 import Text from "@/components/ui/Text";
 import Button from "@/components/ui/Button";
 
-export default function CartSummary({ summary }) {
+export default function CartSummary({ summary = {} }) {
   const router = useRouter();
-
-  // Grab the user from Redux to check authentication
   const user = useSelector((state) => state.user?.user);
 
+  // Cast values safely to Numbers to prevent NaN console errors
+  const totalItems = Number(summary?.total_items) || 0;
+  const subtotal = Number(summary?.subtotal) || 0;
+
   const handleCheckout = () => {
-    // Force the window to scroll to the top instantly before routing
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "instant" });
     }
 
     if (!user?.id) {
-      // User is a guest. Add query param to trigger AuthHandler
       router.push("?auth=checkout");
     } else {
-      // User is logged in. Proceed directly to checkout
       router.push("/checkout");
     }
   };
@@ -35,14 +34,14 @@ export default function CartSummary({ summary }) {
 
       <div className="space-y-4">
         <div className="flex justify-between items-center text-sm sm:text-base">
-          <Text className="text-gray-600">Items</Text>
-          <Text className="font-medium text-black">{summary.total_items}</Text>
+          <Text className="text-gray-600">Total Units</Text>
+          <Text className="font-medium text-black">{totalItems}</Text>
         </div>
 
         <div className="flex justify-between items-center text-sm sm:text-base">
           <Text className="text-gray-600">Subtotal</Text>
           <Text className="font-medium text-black">
-            ₹{(summary.subtotal || 0).toLocaleString("en-IN")}
+            ₹{subtotal.toLocaleString("en-IN")}
           </Text>
         </div>
 
@@ -52,7 +51,7 @@ export default function CartSummary({ summary }) {
           </Text>
 
           <Text variant="h5" className="text-text-primary font-bold text-lg">
-            ₹{(summary.subtotal || 0).toLocaleString("en-IN")}
+            ₹{subtotal.toLocaleString("en-IN")}
           </Text>
         </div>
       </div>

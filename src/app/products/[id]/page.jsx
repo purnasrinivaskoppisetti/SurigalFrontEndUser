@@ -17,6 +17,9 @@ export default function Page() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [adding, setAdding] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  // Track selected variant
+  const [selectedVariant, setSelectedVariant] = useState(null);
 
   const user = useSelector((state) => state.user?.user);
 
@@ -26,6 +29,13 @@ export default function Page() {
   useEffect(() => {
     if (id) fetchProduct(id);
   }, [id]);
+
+  // Set default variant when product data loads
+  useEffect(() => {
+    if (product?.variants?.length > 0) {
+      setSelectedVariant(product.variants[0]);
+    }
+  }, [product]);
 
   useEffect(() => {
     setCurrentImageIndex(0);
@@ -49,26 +59,45 @@ export default function Page() {
     return () => clearInterval(interval);
   }, [images]);
 
+  // ================= ACTIVE DATA (VARIANT OR PRODUCT) =================
+  const currentSalePrice = selectedVariant ? selectedVariant.sale_price : product?.sale_price;
+  const currentMrp = selectedVariant ? selectedVariant.mrp : product?.mrp;
+  const currentStockStatus = selectedVariant ? selectedVariant.stock_status : product?.stock_status;
+  const currentStockQty = selectedVariant ? selectedVariant.available_stock : product?.stock_qty;
+
   // ================= STOCK LOGIC =================
   const isOutOfStock =
-    product?.stock_status?.toLowerCase() === "out of stock" ||
-    Number(product?.stock_qty) <= 0;
+    currentStockStatus?.toLowerCase() === "out of stock" ||
+    Number(currentStockQty) <= 0;
 
-  const handleBuyNow = async () => {
-    if (isOutOfStock) return;
+  // Inside src/app/products/[id]/page.jsx
 
-    try {
-      setAdding(true);
+const handleBuyNow = async () => {
+  if (isOutOfStock) return;
 
-      const res = await addCart(product.id, 1, product);
+  try {
+    setAdding(true);
 
-      if (res?.success) {
-        router.push("/cart");
-      }
-    } finally {
-      setAdding(false);
+    const productId = product?.id || product?.product_id;
+
+    // Grab variant ID safely: selectedVariant -> first variant in array -> variant_id on product
+    const activeVariant =
+      selectedVariant ||
+      (product?.variants?.length > 0 ? product.variants[0] : null);
+
+    const variantId = activeVariant?.id || product?.variant_id || null;
+
+    const res = await addCart(productId, 1, product, variantId);
+
+    if (res?.success) {
+      router.push("/cart");
     }
-  };
+  } catch (error) {
+    console.error("Failed to add to cart:", error);
+  } finally {
+    setAdding(false);
+  }
+};
 
   if (loading) {
     return <div className="py-20 text-center">Loading...</div>;
@@ -110,13 +139,38 @@ export default function Page() {
             {/* PRICE */}
             <div className="flex gap-3 items-center my-4">
               <span className="text-3xl font-bold text-green-600">
-                ₹{product.sale_price}
+                ₹{currentSalePrice}
               </span>
 
               <span className="line-through text-gray-400">
-                ₹{product.mrp}
+                ₹{currentMrp}
               </span>
             </div>
+
+            {/* ================= VARIANTS SELECTION ================= */}
+            {product?.variants?.length > 0 && (
+              <div className="mb-6">
+                <p className="text-sm font-semibold text-gray-700 mb-2">Select Size:</p>
+                <div className="flex gap-2 flex-wrap">
+                  {product.variants.map((variant) => {
+                    const isSelected = selectedVariant?.id === variant.id;
+                    return (
+                      <button
+                        key={variant.id}
+                        onClick={() => setSelectedVariant(variant)}
+                        className={`px-4 py-2 rounded-xl border text-sm font-medium transition-all ${
+                          isSelected
+                            ? "border-green-600 bg-green-50 text-green-700"
+                            : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                        }`}
+                      >
+                        {variant.size}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* ================= STOCK BADGE ================= */}
             <div className="mb-3">
@@ -126,7 +180,7 @@ export default function Page() {
                 </span>
               ) : (
                 <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
-                  {product.stock_status}
+                  {currentStockStatus}
                 </span>
               )}
             </div>
@@ -158,7 +212,7 @@ export default function Page() {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="p-3 bg-gray-50 rounded-xl">
                   <p className="text-gray-500">SKU</p>
-                  <p className="font-semibold">{product.sku}</p>
+                  <p className="font-semibold">{selectedVariant ? selectedVariant.sku : product.sku}</p>
                 </div>
 
                 <div className="p-3 bg-gray-50 rounded-xl">
@@ -173,7 +227,7 @@ export default function Page() {
 
                 <div className="p-3 bg-gray-50 rounded-xl">
                   <p className="text-gray-500">Stock Qty</p>
-                  <p className="font-semibold">{product.stock_qty}</p>
+                  <p className="font-semibold">{currentStockQty}</p>
                 </div>
 
                 <div className="p-3 bg-gray-50 rounded-xl">

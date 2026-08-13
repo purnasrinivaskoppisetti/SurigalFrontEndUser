@@ -6,7 +6,9 @@ export const API_ENDPOINTS = {
   PRODUCT_DETAILS: (id) => `/api/v1/store/products/${id}`,
   ADD_TO_CART: (id) => `/api/v1/customer/cart/add/${id}`,
   GET_CART: "/api/v1/customer/cart",
-  REMOVE_CART: (id) => `/api/v1/customer/cart/remove/${id}`,
+  // REMOVE_CART: (id) => `/api/v1/customer/cart/remove/${id}`,
+  REMOVE_CART: (productId, variantId) => 
+    `/api/v1/customer/cart/remove/${productId}/${variantId}`,
   GET_ADDRESSES: "/api/v1/customer/addresses",
   CREATE_ADDRESS: "/api/v1/customer/addresses",
   GET_ADDRESS: `/api/v1/customer/addresses/{address_id}`,
@@ -26,6 +28,7 @@ export const API_ENDPOINTS = {
   CHECK_SERVICEABILITY: "/api/v1/shipping/check-serviceability",
  
   TRACK_ORDER: (orderId) => `/api/v1/shipping/track-order/${orderId}`,
+  ESTIMATE_DELIVERY: "/api/v1/shipping/estimate-delivery",
  
  
  
