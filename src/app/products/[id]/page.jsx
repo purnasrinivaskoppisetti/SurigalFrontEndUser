@@ -1,6 +1,10 @@
+
+
+
+
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { Star } from "lucide-react";
@@ -17,7 +21,7 @@ export default function Page() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [adding, setAdding] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  
+
   // Track selected variant
   const [selectedVariant, setSelectedVariant] = useState(null);
 
@@ -63,41 +67,100 @@ export default function Page() {
   const currentSalePrice = selectedVariant ? selectedVariant.sale_price : product?.sale_price;
   const currentMrp = selectedVariant ? selectedVariant.mrp : product?.mrp;
   const currentStockStatus = selectedVariant ? selectedVariant.stock_status : product?.stock_status;
-  const currentStockQty = selectedVariant ? selectedVariant.available_stock : product?.stock_qty;
+  const currentStockQty = selectedVariant ? selectedVariant.available_stock ?? selectedVariant.stock_qty : product?.stock_qty;
+  const currentSku = selectedVariant ? selectedVariant.sku : product?.sku;
+  const currentColor = selectedVariant?.color || product?.color;
 
   // ================= STOCK LOGIC =================
   const isOutOfStock =
     currentStockStatus?.toLowerCase() === "out of stock" ||
     Number(currentStockQty) <= 0;
 
-  // Inside src/app/products/[id]/page.jsx
+  // ================= STRICT VALIDATION (HIDES MISSING, EMPTY & 0) =================
+  const isValid = (val) => {
+    if (val === null || val === undefined) return false;
+    if (typeof val === "string" && val.trim() === "") return false;
+    if (val === 0 || val === "0" || Number(val) === 0) return false;
+    return true;
+  };
 
-const handleBuyNow = async () => {
-  if (isOutOfStock) return;
+  // ================= UNIQUE COLORS & SIZES LIST =================
+  const availableColors = useMemo(() => {
+    if (!product?.variants?.length) return [];
+    return Array.from(new Set(product.variants.map((v) => v.color).filter(Boolean)));
+  }, [product]);
 
-  try {
-    setAdding(true);
+  const availableSizes = useMemo(() => {
+    if (!product?.variants?.length) return [];
+    return Array.from(new Set(product.variants.map((v) => v.size).filter(Boolean)));
+  }, [product]);
 
-    const productId = product?.id || product?.product_id;
+  // Handler to match variant when Color or Size changes
+  const handleSelectAttribute = (type, value) => {
+    if (!product?.variants?.length) return;
 
-    // Grab variant ID safely: selectedVariant -> first variant in array -> variant_id on product
-    const activeVariant =
-      selectedVariant ||
-      (product?.variants?.length > 0 ? product.variants[0] : null);
-
-    const variantId = activeVariant?.id || product?.variant_id || null;
-
-    const res = await addCart(productId, 1, product, variantId);
-
-    if (res?.success) {
-      router.push("/cart");
+    let matched = null;
+    if (type === "color") {
+      matched = product.variants.find(
+        (v) => v.color === value && v.size === selectedVariant?.size
+      ) || product.variants.find((v) => v.color === value);
+    } else if (type === "size") {
+      matched = product.variants.find(
+        (v) => v.size === value && v.color === selectedVariant?.color
+      ) || product.variants.find((v) => v.size === value);
     }
-  } catch (error) {
-    console.error("Failed to add to cart:", error);
-  } finally {
-    setAdding(false);
-  }
-};
+
+    if (matched) {
+      setSelectedVariant(matched);
+    }
+  };
+
+  // ================= PRODUCT INFO ITEMS =================
+  const infoFields = [
+    { label: "SKU", value: isValid(currentSku) ? currentSku : null },
+    { label: "Color", value: isValid(currentColor) ? currentColor : null },
+    { label: "Manufacturer", value: isValid(product?.manufacturer) ? product.manufacturer : null },
+    { label: "HSN Code", value: isValid(product?.hsn_code) ? product.hsn_code : null },
+    { label: "Stock Qty", value: isValid(currentStockQty) ? currentStockQty : null },
+    { label: "Weight", value: isValid(product?.weight) ? `${product.weight} kg` : null },
+    { label: "Length", value: isValid(product?.length) ? `${product.length} cm` : null },
+    { label: "Breadth", value: isValid(product?.breadth) ? `${product.breadth} cm` : null },
+    { label: "Height", value: isValid(product?.height) ? `${product.height} cm` : null },
+    { label: "Status", value: isValid(product?.status) ? product.status : null, fullWidth: true },
+  ].filter((item) => item.value !== null);
+
+  const handleBuyNow = async () => {
+    if (isOutOfStock) return;
+
+    try {
+      setAdding(true);
+
+      const productId = product?.id || product?.product_id;
+
+      const activeVariant =
+        selectedVariant ||
+        (product?.variants?.length > 0 ? product.variants[0] : null);
+
+      const variantId = activeVariant?.id || activeVariant?.variant_id || product?.variant_id || null;
+
+      const productPayload = {
+        ...product,
+        sale_price: currentSalePrice,
+        mrp: currentMrp,
+        selected_variant: activeVariant,
+      };
+
+      const res = await addCart(productId, 1, productPayload, variantId);
+
+      if (res?.success) {
+        router.push("/cart");
+      }
+    } catch (error) {
+      console.error("Failed to add to cart:", error);
+    } finally {
+      setAdding(false);
+    }
+  };
 
   if (loading) {
     return <div className="py-20 text-center">Loading...</div>;
@@ -119,7 +182,7 @@ const handleBuyNow = async () => {
             <div className="relative h-[320px] md:h-[500px] flex items-center justify-center">
               <Image
                 src={images[currentImageIndex]?.image_url}
-                alt={product.name}
+                alt={product.name || "Product"}
                 fill
                 className="object-contain p-4 transition-all duration-500"
               />
@@ -128,43 +191,57 @@ const handleBuyNow = async () => {
 
           {/* ================= DETAILS ================= */}
           <div>
-            <p className="text-sm text-green-600 font-medium">
-              {product?.category?.name}
-            </p>
+            {isValid(product?.category?.name) && (
+              <p className="text-sm text-green-600 font-medium">
+                {product.category.name}
+              </p>
+            )}
 
             <Text variant="h2">{product.name}</Text>
 
-            <p className="text-gray-500 mt-1">Brand: {product.brand}</p>
+            {isValid(product?.brand) && (
+              <p className="text-gray-500 mt-1">Brand: {product.brand}</p>
+            )}
 
             {/* PRICE */}
             <div className="flex gap-3 items-center my-4">
-              <span className="text-3xl font-bold text-green-600">
-                ₹{currentSalePrice}
-              </span>
+              {isValid(currentSalePrice) && (
+                <span className="text-3xl font-bold text-green-600">
+                  ₹{Number(currentSalePrice).toLocaleString("en-IN")}
+                </span>
+              )}
 
-              <span className="line-through text-gray-400">
-                ₹{currentMrp}
-              </span>
+              {isValid(currentMrp) && Number(currentMrp) > Number(currentSalePrice) && (
+                <span className="line-through text-gray-400">
+                  ₹{Number(currentMrp).toLocaleString("en-IN")}
+                </span>
+              )}
             </div>
 
-            {/* ================= VARIANTS SELECTION ================= */}
-            {product?.variants?.length > 0 && (
+            {/* ================= SIZE SELECTION ================= */}
+            {availableSizes.length > 0 && (
               <div className="mb-6">
-                <p className="text-sm font-semibold text-gray-700 mb-2">Select Size:</p>
+                <p className="text-sm font-semibold text-gray-700 mb-2">
+                  Select Size:{" "}
+                  <span className="font-normal text-gray-500">
+                    {selectedVariant?.size || "N/A"}
+                  </span>
+                </p>
                 <div className="flex gap-2 flex-wrap">
-                  {product.variants.map((variant) => {
-                    const isSelected = selectedVariant?.id === variant.id;
+                  {availableSizes.map((sz) => {
+                    const isSelected = selectedVariant?.size === sz;
                     return (
                       <button
-                        key={variant.id}
-                        onClick={() => setSelectedVariant(variant)}
+                        key={sz}
+                        type="button"
+                        onClick={() => handleSelectAttribute("size", sz)}
                         className={`px-4 py-2 rounded-xl border text-sm font-medium transition-all ${
                           isSelected
-                            ? "border-green-600 bg-green-50 text-green-700"
+                            ? "border-green-600 bg-green-50 text-green-700 font-semibold"
                             : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
                         }`}
                       >
-                        {variant.size}
+                        {sz}
                       </button>
                     );
                   })}
@@ -180,17 +257,21 @@ const handleBuyNow = async () => {
                 </span>
               ) : (
                 <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
-                  {currentStockStatus}
+                  {currentStockStatus || "In Stock"}
                 </span>
               )}
             </div>
 
             {/* DESCRIPTION */}
-            <p className="mt-4 text-gray-600">
-              {product.short_description}
-            </p>
+            {isValid(product?.short_description) && (
+              <p className="mt-4 text-gray-600">
+                {product.short_description}
+              </p>
+            )}
 
-            <p className="mt-2 text-gray-600">{product.description}</p>
+            {isValid(product?.description) && (
+              <p className="mt-2 text-gray-600">{product.description}</p>
+            )}
 
             {/* ================= BUY BUTTON ================= */}
             <Button
@@ -206,56 +287,25 @@ const handleBuyNow = async () => {
             </Button>
 
             {/* ================= PRODUCT INFO ================= */}
-            <div className="mt-8 border rounded-2xl p-5 bg-white">
-              <h2 className="text-xl font-bold mb-4">Product Information</h2>
+            {infoFields.length > 0 && (
+              <div className="mt-8 border rounded-2xl p-5 bg-white">
+                <h2 className="text-xl font-bold mb-4">Product Information</h2>
 
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="p-3 bg-gray-50 rounded-xl">
-                  <p className="text-gray-500">SKU</p>
-                  <p className="font-semibold">{selectedVariant ? selectedVariant.sku : product.sku}</p>
-                </div>
-
-                <div className="p-3 bg-gray-50 rounded-xl">
-                  <p className="text-gray-500">Manufacturer</p>
-                  <p className="font-semibold">{product.manufacturer}</p>
-                </div>
-
-                <div className="p-3 bg-gray-50 rounded-xl">
-                  <p className="text-gray-500">HSN Code</p>
-                  <p className="font-semibold">{product.hsn_code}</p>
-                </div>
-
-                <div className="p-3 bg-gray-50 rounded-xl">
-                  <p className="text-gray-500">Stock Qty</p>
-                  <p className="font-semibold">{currentStockQty}</p>
-                </div>
-
-                <div className="p-3 bg-gray-50 rounded-xl">
-                  <p className="text-gray-500">Weight</p>
-                  <p className="font-semibold">{product.weight} kg</p>
-                </div>
-
-                <div className="p-3 bg-gray-50 rounded-xl">
-                  <p className="text-gray-500">Length</p>
-                  <p className="font-semibold">{product.length} cm</p>
-                </div>
-
-                <div className="p-3 bg-gray-50 rounded-xl">
-                  <p className="text-gray-500">Breadth</p>
-                  <p className="font-semibold">{product.breadth} cm</p>
-                </div>
-
-                <div className="p-3 bg-gray-50 rounded-xl">
-                  <p className="text-gray-500">Height</p>
-                  <p className="font-semibold">{product.height} cm</p>
-                </div>
-
-                <div className="p-3 bg-gray-50 rounded-xl col-span-2">
-                  <p className="text-gray-500">Status</p>
-                  <p className="font-semibold">{product.status}</p>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  {infoFields.map((field) => (
+                    <div
+                      key={field.label}
+                      className={`p-3 bg-gray-50 rounded-xl ${
+                        field.fullWidth ? "col-span-2" : ""
+                      }`}
+                    >
+                      <p className="text-gray-500">{field.label}</p>
+                      <p className="font-semibold">{field.value}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
+            )}
 
             {/* ================= REVIEWS ================= */}
             <div className="mt-8 border rounded-2xl p-5 bg-white">
@@ -264,7 +314,7 @@ const handleBuyNow = async () => {
               {/* AVG RATING */}
               <div className="flex items-center gap-4 mb-6">
                 <div className="text-4xl font-bold text-green-600">
-                  {ratingSummary?.average_rating || product.rating}
+                  {ratingSummary?.average_rating || product.rating || 0}
                 </div>
 
                 <div>
@@ -276,7 +326,7 @@ const handleBuyNow = async () => {
                         className={
                           i <
                           Math.round(
-                            ratingSummary?.average_rating || product.rating
+                            ratingSummary?.average_rating || product.rating || 0
                           )
                             ? "text-yellow-500 fill-yellow-500"
                             : "text-gray-300"
@@ -286,7 +336,7 @@ const handleBuyNow = async () => {
                   </div>
 
                   <p className="text-sm text-gray-500">
-                    {ratingSummary?.total_reviews || product.review_count}{" "}
+                    {ratingSummary?.total_reviews || product.review_count || 0}{" "}
                     Reviews
                   </p>
                 </div>

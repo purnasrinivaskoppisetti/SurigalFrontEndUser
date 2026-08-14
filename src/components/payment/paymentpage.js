@@ -209,7 +209,7 @@ export default function PaymentPageContent() {
       <div className="space-y-6 lg:col-span-2">
         
         {/* Selected Address Card */}
-        {selectedAddress && (
+        {/* {selectedAddress && (
           <div className="relative overflow-hidden rounded-2xl border border-sky-100 bg-gradient-to-r from-sky-50/80 via-white to-blue-50/50 p-4 sm:p-5 shadow-xs">
             <div className="flex items-start justify-between gap-4">
               <div className="flex gap-3.5">
@@ -242,7 +242,7 @@ export default function PaymentPageContent() {
               </button>
             </div>
           </div>
-        )}
+        )} */}
 
         {/* Order Items List Box */}
         <div className="rounded-2xl border border-gray-100 bg-white p-5 sm:p-6 shadow-xs">
