@@ -79,14 +79,16 @@ export default function OrdersList() {
             .replace(/_|-/g, " ")
             .trim();
 
-          const isOutForDelivery = normalizedStatus === "out for delivery";
+          // Enabled strictly for 'packed', 'shipped', and 'out for delivery'
+          const trackableStatuses = ["packed", "shipped", "out for delivery"];
+          const canTrackOrder = trackableStatuses.includes(normalizedStatus);
 
           return (
             <div
               key={order?.order_id}
               className="overflow-hidden rounded-3xl border border-gray-200 bg-white"
             >
-              {/* ORDER HEADER - Changed outer element from <button> to <div> */}
+              {/* ORDER HEADER */}
               <div
                 onClick={() => toggleOrder(order?.order_id)}
                 className="flex w-full cursor-pointer items-center justify-between p-5 text-left"
@@ -117,11 +119,11 @@ export default function OrdersList() {
 
                 <div className="flex items-center gap-3">
                   {/* TRACK ORDER BUTTON */}
-                  {isOutForDelivery && (
+                  {canTrackOrder && (
                     <button
                       type="button"
                       onClick={(e) => handleOpenTrackModal(e, order?.order_id)}
-                      className="inline-flex items-center gap-2 rounded-2xl bg-[var(--color-text-primary)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                      className="inline-flex items-center gap-2 rounded-2xl bg-[var(--color-text-primary)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
                     >
                       <Truck size={16} />
                       Track Order
@@ -160,7 +162,7 @@ export default function OrdersList() {
                             {product?.product_name}
                           </h4>
 
-                          {order?.status?.toLowerCase() === "delivered" && (
+                          {normalizedStatus === "delivered" && (
                             <button
                               type="button"
                               onClick={() =>
