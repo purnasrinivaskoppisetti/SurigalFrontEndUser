@@ -1,13 +1,24 @@
+
+
 "use client";
 
-import { X, Truck, MapPin, Calendar, Loader2, PackageCheck } from "lucide-react";
+import { X, Truck, MapPin, Calendar, Loader2, PackageCheck, User, Phone } from "lucide-react";
 import { useTrackOrder } from "@/hooks/useTrackorder";
 
 export default function TrackOrderModal({ orderId, isOpen, onClose }) {
-  // Pass orderId only when modal is open to control fetching
   const { data: tracking, loading, error } = useTrackOrder(isOpen ? orderId : null);
 
   if (!isOpen) return null;
+
+  // Format destination city/state safely from either an object or string
+  const destinationCity =
+    typeof tracking?.destination === "object"
+      ? [tracking?.destination?.city, tracking?.destination?.state]
+          .filter(Boolean)
+          .join(", ")
+      : tracking?.destination || "N/A";
+
+  const destinationAddress = typeof tracking?.destination === "object" ? tracking.destination : null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
@@ -26,6 +37,7 @@ export default function TrackOrderModal({ orderId, isOpen, onClose }) {
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
             className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
           >
@@ -56,68 +68,102 @@ export default function TrackOrderModal({ orderId, isOpen, onClose }) {
               <div className="grid grid-cols-2 gap-4 text-xs">
                 <div>
                   <span className="text-gray-400">Courier</span>
-                  <p className="font-semibold text-gray-800">{tracking.courier}</p>
+                  <p className="font-semibold text-gray-800">{tracking?.courier || "N/A"}</p>
                 </div>
                 <div>
                   <span className="text-gray-400">AWB Number</span>
-                  <p className="font-semibold text-gray-800">{tracking.awb_number}</p>
+                  <p className="font-semibold text-gray-800">{tracking?.awb_number || "N/A"}</p>
                 </div>
                 <div>
-                  <span className="text-gray-400">Status</span>
+                  <span className="text-gray-400">Tracking Status</span>
                   <p className="capitalize font-semibold text-blue-600">
-                    {tracking.tracking_status}
+                    {tracking?.tracking_status || "N/A"}
                   </p>
                 </div>
                 <div>
                   <span className="text-gray-400">Order Status</span>
                   <p className="capitalize font-semibold text-green-600">
-                    {tracking.order_status}
+                    {tracking?.order_status || "N/A"}
                   </p>
                 </div>
               </div>
 
-              {/* ORIGIN & DESTINATION ROUTE */}
+              {/* ROUTE */}
               <div className="mt-4 flex items-center justify-between border-t border-gray-200/60 pt-3 text-xs">
                 <div className="flex items-center gap-1.5 font-medium text-gray-700">
-                  <MapPin size={14} className="text-gray-400" />
-                  <span>{tracking.origin}</span>
+                  <MapPin size={14} className="text-gray-400 shrink-0" />
+                  <span className="truncate max-w-[120px]">{tracking?.origin || "Origin"}</span>
                 </div>
-                <div className="h-[2px] flex-1 bg-dashed bg-gray-300 mx-3" />
+                <div className="h-[2px] flex-1 border-t-2 border-dashed border-gray-300 mx-3" />
                 <div className="flex items-center gap-1.5 font-medium text-gray-700">
-                  <MapPin size={14} className="text-blue-600" />
-                  <span>{tracking.destination}</span>
+                  <MapPin size={14} className="text-blue-600 shrink-0" />
+                  <span className="truncate max-w-[140px]">{destinationCity}</span>
                 </div>
               </div>
+
+              {/* DELIVERY ADDRESS DETAILS */}
+              {destinationAddress && (
+                <div className="mt-3 rounded-xl bg-white/70 p-2.5 text-[11px] text-gray-600 border border-gray-100">
+                  <div className="flex items-center gap-1 font-semibold text-gray-800">
+                    <User size={12} />
+                    <span>{destinationAddress.full_name}</span>
+                    {destinationAddress.phone && (
+                      <span className="ml-2 font-normal text-gray-500 flex items-center gap-0.5">
+                        <Phone size={10} /> {destinationAddress.phone}
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-0.5 text-gray-500">
+                    {[
+                      destinationAddress.address_line1,
+                      destinationAddress.address_line2,
+                      destinationAddress.city,
+                      destinationAddress.state,
+                      destinationAddress.pincode,
+                    ]
+                      .filter(Boolean)
+                      .join(", ")}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* TRACKING TIMELINE */}
             <div>
               <h3 className="mb-4 text-sm font-bold text-gray-900">Shipment History</h3>
-              <div className="relative ml-2 border-l-2 border-gray-200 pl-6 space-y-6">
-                {tracking.scans?.map((scan, index) => (
-                  <div key={index} className="relative">
-                    {/* TIMELINE ICON DOT */}
-                    <span className="absolute -left-[31px] top-0 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 ring-4 ring-white">
-                      <PackageCheck size={12} className="text-white" />
-                    </span>
+              {tracking?.scans && tracking.scans.length > 0 ? (
+                <div className="relative ml-2 border-l-2 border-gray-200 pl-6 space-y-6">
+                  {tracking.scans.map((scan, index) => (
+                    <div key={index} className="relative">
+                      {/* TIMELINE ICON DOT */}
+                      <span className="absolute -left-[31px] top-0 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 ring-4 ring-white">
+                        <PackageCheck size={12} className="text-white" />
+                      </span>
 
-                    {/* DETAILS */}
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">
-                        {scan.scan_status}
-                      </p>
-                      <p className="mt-0.5 text-xs text-gray-500 flex items-center gap-1">
-                        <MapPin size={12} />
-                        {scan.scanned_location}
-                      </p>
-                      <p className="mt-1 text-[11px] text-gray-400 flex items-center gap-1">
-                        <Calendar size={12} />
-                        {new Date(scan.scanned_at).toLocaleString()}
-                      </p>
+                      {/* DETAILS */}
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {scan.scan_status}
+                        </p>
+                        {scan.scanned_location && (
+                          <p className="mt-0.5 text-xs text-gray-500 flex items-center gap-1">
+                            <MapPin size={12} />
+                            {scan.scanned_location}
+                          </p>
+                        )}
+                        {scan.scanned_at && (
+                          <p className="mt-1 text-[11px] text-gray-400 flex items-center gap-1">
+                            <Calendar size={12} />
+                            {new Date(scan.scanned_at).toLocaleString()}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-gray-400 italic">No tracking updates recorded yet.</p>
+              )}
             </div>
           </div>
         )}
