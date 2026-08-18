@@ -287,12 +287,12 @@ export default function Footer() {
             <span>Developed by</span>
 
             <a
-              href="https://www.orangeqhub.in/"
+              href="https://www.ameyait.com/"
               target="_blank"
               rel="noopener noreferrer"
               className="font-medium text-white transition hover:text-[var(--color-text-primary)]"
             >
-              Orange Quantum Hub
+              AMEYA IT SOLUTIONS
             </a>
           </div>
         </Container>
